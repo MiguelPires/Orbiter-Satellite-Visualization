@@ -101,27 +101,79 @@ function gen_map() {
 	countryCount = countryOccurrence(countries);
 	sortedCountryCount = sortAssociativeArray(countryCount);
 
-	console.log(sortedCountryCount);
+	console.log(countryCount);
 
+    var paletteScale = d3.scale.linear()
+            .domain([0,sortedCountryCount[0][1]])
+            .range(["#95b7ed","#0642a3"]); // blue range
+
+	var dataset = {};
+
+	Object.keys(countryCount).forEach(function(country){
+		var countryValue;
+		countryValue = countryCount[country];
+
+		code = countryCodePairs[country];
+		console.log(countryCodePairs['Portugal']);
+		dataset[code] = { value : countryValue, fillColor: paletteScale(countryValue)};
+	});
+
+	console.log(dataset);
 	var map = new Datamap({
         element: document.getElementById('map'),
-        fills: {
-            HIGH: '#afafaf',
-            LOW: '#123456',
-            MEDIUM: 'blue',
-            UNKNOWN: 'rgb(0,0,0)',
-            defaultFill: 'green'
-        },
-        data: {
-            IRL: {
-                fillKey: 'LOW',
-                numberOfThings: 2002
-            },
-            USA: {
-                fillKey: 'MEDIUM',
-                numberOfThings: 10381
-            }
-        }
+        data: dataset,
+        scope: 'world', //currently supports 'usa' and 'world', however with custom map data you can specify your own
+	  //  setProjection: setProjection, //returns a d3 path and projection functions
+	    projection: 'equirectangular', //style of projection to be used. try "mercator"
+	    height: null, //if not null, datamaps will grab the height of 'element'
+	    width: null, //if not null, datamaps will grab the width of 'element'
+	    responsive: false, //if true, call `resize()` on the map object when it should adjust it's size
+	    done: function() {}, //callback when the map is done drawing
+	    fills: {
+	      defaultFill: 'gray' //the keys in this object map to the "fillKey" of [data] or [bubbles]
+	    },
+	    geographyConfig: {
+	        dataUrl: null, //if not null, datamaps will fetch the map JSON (currently only supports topojson)
+	        hideAntarctica: true,
+	        borderWidth: 0.5,
+	        borderOpacity: 1,
+	        borderColor: '#FDFDFD',
+	        popupTemplate: function(geography, data) { //this function should just return a string
+	          return '<div class="hoverinfo"><strong>' + geography.properties.name + '</strong></div>';
+	        },
+	        popupOnHover: true, //disable the popup while hovering
+	        highlightOnHover: true,
+	        highlightFillColor: '#FC8D59',
+	        highlightBorderColor: 'rgba(250, 15, 160, 0.2)',
+	        highlightBorderWidth: 2,
+	        highlightBorderOpacity: 1
+	    },
+	    bubblesConfig: {
+	        borderWidth: 2,
+	        borderOpacity: 1,
+	        borderColor: '#FFFFFF',
+	        popupOnHover: true,
+	        radius: null,
+	        popupTemplate: function(geography, data) {
+	          return '<div class="hoverinfo"><strong>' + data.name + '</strong></div>';
+	        },
+	        fillOpacity: 0.75,
+	        animate: true,
+	        highlightOnHover: true,
+	        highlightFillColor: '#FC8D59',
+	        highlightBorderColor: 'rgba(250, 15, 160, 0.2)',
+	        highlightBorderWidth: 2,
+	        highlightBorderOpacity: 1,
+	        highlightFillOpacity: 0.85,
+	        exitDelay: 100,
+	        key: JSON.stringify
+	    },
+	    arcConfig: {
+	      strokeColor: '#DD1C77',
+	      strokeWidth: 1,
+	      arcSharpness: 1,
+	      animationSpeed: 600
+	    }
     });
 
     // Draw a legend for this map
