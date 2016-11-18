@@ -1,0 +1,17 @@
+.dot circle {
+  fill: lightgreen;
+  stroke: green;
+  stroke-width: 2px;
+}
+
+.dot circle.dragging {
+  fill: lightblue;
+  stroke: blue;
+}
+
+.axis line {
+  fill: none;
+  stroke: #ddd;
+  shape-rendering: crispEdges;
+  vector-effect: non-scaling-stroke;
+}

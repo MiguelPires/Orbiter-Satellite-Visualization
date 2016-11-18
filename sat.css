@@ -1,0 +1,32 @@
+h1 { 
+   font-size: 18pt;
+   font-family: calibri, arial, sans serif;
+}
+
+
+.axis path, .axis line {
+    fill: none;
+    stroke: black;
+
+}
+
+.axis text {
+   font-family: calibri, sans serif;
+   font-size: 10pt;
+}
+
+.btn {
+	width: 100px;
+	font-family: calibri, sans serif;
+	padding: 10px;
+	border: solid 1px black;
+	color: white;
+}
+
+#old {
+	background-color: red;
+}
+
+#new {
+	background-color: purple;
+}
