@@ -1,4 +1,3 @@
-
 var dataset;
 var workingDataset = new Array();
 var eventDispatcher = d3.dispatch("launchVehicleEnter");
@@ -13,26 +12,12 @@ eventDispatcher.on("launchVehicleEnter", function(lauchVehicle){
 	selectedBar.attr("fill", "red");
 });
 
-/*eventDispatcher.on("launchVehicleEnter.scatterplot", function(lauchVehicle){
-	if (selectedCircle != null) {
-		selectedCircle.attr("fill", "purple");
-	}
-
-	selectedCircle = d3.select("circle[title=\'"+lauchVehicle[0]+"\']");
-	selectedCircle.attr("fill", "red");
-});*/
-
-d3.csv("data.csv", function (data)  {
-	/*data.forEach(function(d){
-	console.log(d["Name of Satellite, Alternate Names"]);
-})*/
+d3.csv("data.csv", function (data) {
 	dataset = data;
 	workingDataset = dataset;
 
 	gen_bars();
 	gen_map();
-	gen_scatterplot();
-
 });
 
 function gen_bars() {
@@ -45,24 +30,14 @@ function gen_bars() {
 	.attr("height",h);
 
 	var launchVehicles = new Array();
-
 	workingDataset.forEach(function(d){
 		launchVehicles.push(d["Launch Vehicle"]);
 	});
 
-	// generates a hash tables with counts for each vehicle
+	// generates a associative array with counts for each vehicle
 	vehicleCount = vehicleOccurrence(launchVehicles);
-
-	// sorts the tuples in decreasing order of value
-	var sortedVehicleCount = [];
-	for (var key in vehicleCount) sortedVehicleCount.push([key, vehicleCount[key]]);
-	sortedVehicleCount = sortedVehicleCount.sort(function(a, b) {
-	    a = a[1];
-	    b = b[1];
-
-	    return a < b ? 1 : (a > b ? -1 : 0);
-	});
-	//console.log(sortedVehicleCount);
+	// sorts the array by decreasing order of value	
+	sortedVehicleCount = sortAssociativeArray(vehicleCount);
 
 	var padding = 30;
 	var bar_w = 10;
@@ -117,28 +92,17 @@ function gen_bars() {
 	});
 }
 
-function vehicleOccurrence(vehicleArray) {
-	var vehicleCounter = new Object();
-	vehicleArray.forEach(function(d){
-		parts = d.split(/[\s\.\-/]+/);
-		vehicleName = parts[0];
-
-		if (vehicleName === "Long")
-			vehicleName = "Long March";
-
-		//console.log("FIRST: "+vehicleName);
-		if (vehicleCounter.hasOwnProperty(vehicleName)){
-			vehicleCounter[vehicleName] += 1;
-		} else {
-			vehicleCounter[vehicleName] = 1;
-		}
-	});
-
-	return vehicleCounter;
-}
-
 function gen_map() {
-	//var map = new d3.geoMercator();
+	var countries = new Array();
+
+	workingDataset.forEach(function(d){
+		countries.push(d["Country of Owner"]);
+	});
+	countryCount = countryOccurrence(countries);
+	sortedCountryCount = sortAssociativeArray(countryCount);
+
+	console.log(sortedCountryCount);
+
 	var map = new Datamap({
         element: document.getElementById('map'),
         fills: {
@@ -164,73 +128,50 @@ function gen_map() {
     map.legend();
 }
 
-function gen_scatterplot() {
-	/*var w = 600;
-	var h = 300;
+// sorts an associative array in decreasing order of value
+function sortAssociativeArray(assocArray) {
+	var sortedCount = [];
+	for (var key in assocArray) sortedCount.push([key, assocArray[key]]);
+	return sortedCount.sort(function(a, b) {
+	    a = a[1];
+	    b = b[1];
 
-	var svg = d3.select("#the_chart")
-	.append("svg")
-	.attr("width",w)
-	.attr("height",h)
-	.attr("fill", "blue");
+	    return a < b ? 1 : (a > b ? -1 : 0);
+	});
+}
 
+function countryOccurrence(countryArray) {
+	var countryCounter = new Object();
+	countryArray.forEach(function(item){
+		countries = item.split(/[/]+/);
 
-	var padding = 30;
-	var bar_w = 15;
-	var r = 5;
+		countries.forEach(function(country) {
+			if (countryCounter.hasOwnProperty(country)){
+				countryCounter[country] += 1;
+			} else {
+				countryCounter[country] = 1;
+			}	
+		});
+	});
 
-	var hscale = d3.scaleLinear()
-	.domain([10,0])
-	.range([padding,h-padding]);
+	return countryCounter;
+}
 
-	var xscale = d3.scaleLinear()
-	.domain([0.5,d3.max(dataset, function(d) {
-		return d.budget;})/1000000])
-		.range([padding,w-padding]);
+function vehicleOccurrence(vehicleArray) {
+	var vehicleCounter = new Object();
+	vehicleArray.forEach(function(d){
+		parts = d.split(/[\s\.\-/]+/);
+		vehicleName = parts[0];
 
-		var yaxis = d3.axisLeft()
-		.scale(hscale);
+		if (vehicleName === "Long")
+			vehicleName = "Long March";
 
-		var xaxis = d3.axisBottom()
-		.scale(xscale)
-		.ticks(dataset.length/2);
-
-		var cscale = d3.scaleLinear()
-		.domain([d3.min(dataset, function(d) { return  d.year;}),
-			d3.max(dataset, function(d) { return d.year;})])
-			.range(["red", "blue"]);
-
-
-			gY = svg.append("g")
-			.attr("transform","translate(30,0)")
-			.attr("class","y axis")
-			.call(yaxis);
-
-
-			gX = svg.append("g")
-			.attr("transform","translate(0," + (h-padding) + ")")
-			.call(xaxis);
-
-			svg.selectAll("circle")
-			.data(dataset)
-			.enter().append("circle")
-			.attr("r",r)
-			.attr("fill","purple")
-			.attr("cx",function(d, i) {
-				if (d.budget_adj == 0) {return padding;}
-				return  xscale(d.budget_adj/1000000);
-			})
-			.attr("cy",function(d) {
-				return hscale(d.rating);
-			})
-			.attr("title", function(d) {return d.title;})
-			.on("mouseover", function(d) {
-				dispatch.call("launchVehicleEnter", d, d);
-			});
-
-
-
-
-*/
-
+		if (vehicleCounter.hasOwnProperty(vehicleName)){
+			vehicleCounter[vehicleName] += 1;
+		} else {
+			vehicleCounter[vehicleName] = 1;
 		}
+	});
+
+	return vehicleCounter;
+}
