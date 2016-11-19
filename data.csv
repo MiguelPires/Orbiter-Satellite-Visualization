@@ -1022,19 +1022,19 @@ Velox 1,Singapore,Nanyang Technological University,Civil,Technology Development,
 IRNSS-1F (Indian Regional Navigation Satellite System),India,Indian Space Research Organization (IRSO),Government,Navigation,GEO,10-03-16,Satish Dhawan Space Center,13.7259;80.2266,Proton M
 IRNSS-1C (Indian Regional Navigation Satellite System),India,Indian Space Research Organization (ISRO),Government,Navigation,GEO,15-10-14,Satish Dhawan Space Center,13.7259;80.2266,Proton M
 IRNSS-1E (Indian Regional Navigation Satellite System),India,Indian Space Research Organization (ISRO),Government,Navigation,GEO,20-01-16,Satish Dhawan Space Center,13.7259;80.2266,Proton M
-CartoSat 2C,India,Indian Space Research Organization (ISRO),Government,Earth Observation,LEO,22-06-16,Satish Dhawan Space Center ,13.7259;80.2266,Proton M
-DMC 3-1 (Disaster Monitoring Constellation),United Kingdom,Surrey Satellite Technology Ltd.,Commercial,Earth Observation,LEO,10-07-15,Satish Dhawan Space Centre,13.7259;80.2266,Proton M
-DMC 3-2 (Disaster Monitoring Constellation),United Kingdom,Surrey Satellite Technology Ltd.,Commercial,Earth Observation,LEO,10-07-15,Satish Dhawan Space Centre,13.7259;80.2266,Proton M
-DMC 3-3 (Disaster Monitoring Constellation),United Kingdom,Surrey Satellite Technology Ltd.,Commercial,Earth Observation,LEO,10-07-15,Satish Dhawan Space Centre,13.7259;80.2266,Proton M
-CBNT-1 (Carbonite 1),United Kingdom,Surrey Satellite Technology Ltd.,Commercial,Technology Development,LEO,10-07-15,Satish Dhawan Space Centre,13.7259;80.2266,Proton M
-DLR Tubsat ,Germany,Deutsches Zentrum für Luft- und Raumfahrt,Government,Earth Science,LEO,26-05-99,Satish Dhawan Space Centre,13.7259;80.2266,Proton M
-Bird 2 (Bispectral InfraRed Detector 2),Germany,Institute of Space Sensor Technology and Planetary Exploration,Government/Civil,Earth Observation/Technology Development,LEO,22-10-01,Satish Dhawan Space Centre,13.7259;80.2266,Proton M
-exactView 9,Canada,exactEarth,Commercial,Communications,LEO,28-09-15,Satish Dhawan Space Centre,13.7259;80.2266,Proton M
-Astrosat,India,Telemetry Tracking and Command Network (ISTRAC) Centre,Government,Space Science,LEO,28-09-15,Satish Dhawan Space Centre,13.7259;80.2266,Proton M
-CartoSat 1 (IRS P5),India,Indian Space Research Organization (ISRO),Government,Earth Observation,LEO,05-05-05,Satish Dhawan Space Centre,13.7259;80.2266,Proton M
-"CartoSat 2 (IRS P7, CartoSat 2AT)",India,Indian Space Research Organization (ISRO),Government,Earth Observation,LEO,10-01-07,Satish Dhawan Space Centre,13.7259;80.2266,Proton M
-BIROS (Bispectral Infrared Optical System),Germany,German Aerospace Center (DLR),Government,Earth Observation,LEO,22-06-16,Satish Dhawan Space Centre,13.7259;80.2266,Proton M
-Galassia,Singapore,National University of Singapore,Civil,Earth Science,LEO,16-12-15,Satish Dhawan Space Centre,13.7259;80.2266,Proton M
+CartoSat 2C,India,Indian Space Research Organization (ISRO),Government,Earth Observation,LEO,22-06-16,Satish Dhawan Space Center,13.7259;80.2266,Proton M
+DMC 3-1 (Disaster Monitoring Constellation),United Kingdom,Surrey Satellite Technology Ltd.,Commercial,Earth Observation,LEO,10-07-15,Satish Dhawan Space Center,13.7259;80.2266,Proton M
+DMC 3-2 (Disaster Monitoring Constellation),United Kingdom,Surrey Satellite Technology Ltd.,Commercial,Earth Observation,LEO,10-07-15,Satish Dhawan Space Center,13.7259;80.2266,Proton M
+DMC 3-3 (Disaster Monitoring Constellation),United Kingdom,Surrey Satellite Technology Ltd.,Commercial,Earth Observation,LEO,10-07-15,Satish Dhawan Space Center,13.7259;80.2266,Proton M
+CBNT-1 (Carbonite 1),United Kingdom,Surrey Satellite Technology Ltd.,Commercial,Technology Development,LEO,10-07-15,Satish Dhawan Space Center,13.7259;80.2266,Proton M
+DLR Tubsat ,Germany,Deutsches Zentrum für Luft- und Raumfahrt,Government,Earth Science,LEO,26-05-99,Satish Dhawan Space Center,13.7259;80.2266,Proton M
+Bird 2 (Bispectral InfraRed Detector 2),Germany,Institute of Space Sensor Technology and Planetary Exploration,Government/Civil,Earth Observation/Technology Development,LEO,22-10-01,Satish Dhawan Space Center,13.7259;80.2266,Proton M
+exactView 9,Canada,exactEarth,Commercial,Communications,LEO,28-09-15,Satish Dhawan Space Center,13.7259;80.2266,Proton M
+Astrosat,India,Telemetry Tracking and Command Network (ISTRAC) Centre,Government,Space Science,LEO,28-09-15,Satish Dhawan Space Center,13.7259;80.2266,Proton M
+CartoSat 1 (IRS P5),India,Indian Space Research Organization (ISRO),Government,Earth Observation,LEO,05-05-05,Satish Dhawan Space Center,13.7259;80.2266,Proton M
+"CartoSat 2 (IRS P7, CartoSat 2AT)",India,Indian Space Research Organization (ISRO),Government,Earth Observation,LEO,10-01-07,Satish Dhawan Space Center,13.7259;80.2266,Proton M
+BIROS (Bispectral Infrared Optical System),Germany,German Aerospace Center (DLR),Government,Earth Observation,LEO,22-06-16,Satish Dhawan Space Center,13.7259;80.2266,Proton M
+Galassia,Singapore,National University of Singapore,Civil,Earth Science,LEO,16-12-15,Satish Dhawan Space Center,13.7259;80.2266,Proton M
 Intelsat 19 (IS-19),United States of America,"Intelsat, S.A.",Commercial,Communications,GEO,01-06-12,Sea Launch (Odyssey),0;-154,Proton M
 "Galaxy-13 (Horizons 1, Galaxy 13L)",United States of America/Japan,"PanAmSat (Intelsat, Ltd.)/Sky Perfect JSAT Corp.",Commercial,Communications,GEO,01-10-03,Sea Launch (Odyssey),0;-154,Proton M
 Spaceway F1,United States of America,"DirecTV, Inc.",Commercial,Communications,GEO,26-04-05,Sea Launch (Odyssey),0;-154,Proton M
