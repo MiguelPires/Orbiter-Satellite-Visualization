@@ -108,17 +108,17 @@ function gen_map() {
             .range(["#95b7ed","#0642a3"]); // blue range
 
 	var dataset = {};
-
 	Object.keys(countryCount).forEach(function(country){
 		var countryValue;
 		countryValue = countryCount[country];
 
 		code = countryCodePairs[country];
-		console.log(countryCodePairs['Portugal']);
+		//console.log(countryCodePairs['Portugal']);
 		dataset[code] = { value : countryValue, fillColor: paletteScale(countryValue)};
 	});
 
 	console.log(dataset);
+
 	var map = new Datamap({
         element: document.getElementById('map'),
         data: dataset,
@@ -141,8 +141,8 @@ function gen_map() {
 	        popupTemplate: function(geography, data) { //this function should just return a string
 	          return '<div class="hoverinfo"><strong>' + geography.properties.name + '</strong></div>';
 	        },
-	        popupOnHover: true, //disable the popup while hovering
-	        highlightOnHover: true,
+	        popupOnHover: false, //disable the popup while hovering
+	        highlightOnHover: false,
 	        highlightFillColor: '#FC8D59',
 	        highlightBorderColor: 'rgba(250, 15, 160, 0.2)',
 	        highlightBorderWidth: 2,
@@ -176,8 +176,43 @@ function gen_map() {
 	    }
     });
 
+
+	gen_bubbles(map);
+
     // Draw a legend for this map
     map.legend();
+}
+
+function gen_bubbles (map) {
+	var dataset = {};
+	var launchSites = Array();
+	var largestRadius = 0;
+
+	// gather dataset for bubbles
+	workingDataset.forEach(function(item){
+		var launchSite = item["Launch Site"];
+
+		if (launchSites.hasOwnProperty(launchSite)){
+			launchSites[launchSite].radius += 1;
+
+			// largestRadius for bubble normalization
+			if (launchSites[launchSite].radius > largestRadius) {
+				largestRadius = launchSites[launchSite].radius;
+			}
+		} else {
+			code = countryCodePairs[item["Country of Owner"]];
+			coordinates = item["Coordinates"].split(";");
+			launchSites[launchSite] = {name: launchSite, radius: 1, latitude: coordinates[0], longitude: coordinates[1]};
+		}	
+	});
+
+	// normalize bubble size
+	Object.keys(launchSites).forEach(function(site) {
+		launchSites[site].radius = launchSites[site].radius * 50 / largestRadius;
+	})
+
+	// draw bubbles
+	map.bubbles(Object.values(launchSites));
 }
 
 // sorts an associative array in decreasing order of value
