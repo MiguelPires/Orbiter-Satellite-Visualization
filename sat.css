@@ -15,18 +15,13 @@ h1 {
    font-size: 10pt;
 }
 
-.btn {
-	width: 100px;
-	font-family: calibri, sans serif;
-	padding: 10px;
-	border: solid 1px black;
-	color: white;
+
+.axis--x path {
+  display: black;
 }
 
-#old {
-	background-color: red;
-}
-
-#new {
-	background-color: purple;
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
 }
