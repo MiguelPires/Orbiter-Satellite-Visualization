@@ -285,8 +285,8 @@ Intelsat 901 ,United States of America,"Intelsat, S.A.",Commercial,Communication
 "AMC-10 (Americom-10, GE 10)",United States of America,SES World Skies,Commercial,Communications,GEO,05-02-04,Cape Canaveral,28.3922;-80.6077,Atlas 5
 "AMC-11 (Americom-11, GE 11)",United States of America,SES World Skies,Commercial,Communications,GEO,19-05-04,Cape Canaveral,28.3922;-80.6077,Atlas 5
 "JCSat 4A (JCSAT 6, Japan Communications Satellite 6)",Japan,Sky Perfect JSAT Corporation,Commercial,Communications,GEO,15-02-99,Cape Canaveral,28.3922;-80.6077,Atlas 5
-Hispasat 1C ,Spain,Hispasat,Commercial/Gov/Mil,Communications,GEO,04-02-00,Cape Canaveral,28.3922;-80.6077,Atlas 5
-Hispasat 1D ,Spain,Hispasat,Commercial/Gov/Mil,Communications,GEO,18-09-02,Cape Canaveral,28.3922;-80.6077,Atlas 5
+Hispasat 1C ,Spain,Hispasat,Commercial/Government/Military,Communications,GEO,04-02-00,Cape Canaveral,28.3922;-80.6077,Atlas 5
+Hispasat 1D ,Spain,Hispasat,Commercial/Government/Military,Communications,GEO,18-09-02,Cape Canaveral,28.3922;-80.6077,Atlas 5
 "ABS-4 (ABS-2i, MBSat, Mobile Broadcasting Satellite, Han Byul)",Bermuda,Asia Broadcast Satellite Ltd.,Commercial,Communications,GEO,13-03-04,Cape Canaveral,28.3922;-80.6077,Atlas 5
 "UFO-11  (United States of America 174) ""UHF Follow-On""",United States of America,US Navy,Military,Communications,GEO,18-12-03,Cape Canaveral,28.3922;-80.6077,Atlas 5
 Eutelsat 36A (Eutelsat W-4) ,France,Eutelsat S.A.,Commercial,Communications,GEO,24-05-00,Cape Canaveral,28.3922;-80.6077,Atlas 5
@@ -475,7 +475,7 @@ Duchifat-1,Israel,Herzliya Science Centre (HSC),Civil,Communications,LEO,19-06-1
 UWE-3 (University of Würzburg Experimental Satellite 3),Germany,University of Würzburg,Civil,Communications,LEO,21-11-13,Dombarovsky Air Base,51.093889;59.842222,Dnepr
 AprizeSat 7,Canada,AprizeSat,Commercial,Communications,LEO,21-11-13,Dombarovsky Air Base,51.093889;59.842222,Dnepr
 Perseus M1,Russia/United States of America,Dauria Aerospace,Commercial,Communications,LEO,19-06-14,Dombarovsky Air Base,51.093889;59.842222,Dnepr
-Perseus M2,Russia/United States of America,Dauria Aerospace,Commerical,Communications,LEO,19-06-14,Dombarovsky Air Base,51.093889;59.842222,Dnepr
+Perseus M2,Russia/United States of America,Dauria Aerospace,Commercial,Communications,LEO,19-06-14,Dombarovsky Air Base,51.093889;59.842222,Dnepr
 AprizeSat 8 (exactView-12),United States of America/Argentina,Aprize Satellite,Commercial,Communications/Maritime Tracking,LEO,21-11-13,Dombarovsky Air Base,51.093889;59.842222,Dnepr
 AprizeSat 10 (exactView-13),United States of America/Argentina,Aprize Satellite,Commercial,Communications/Maritime Tracking,LEO,19-06-14,Dombarovsky Air Base,51.093889;59.842222,Dnepr
 AprizeSat 9 (exactView-11),Canada,exactEarth,Commercial,Communications/Maritime Tracking,LEO,19-06-14,Dombarovsky Air Base,51.093889;59.842222,Dnepr
@@ -730,7 +730,7 @@ Pléiades HR1B,France,"Ministry of Defense/Centre National d'Etudes Spatiales (CN
 Galileo IOV-1 PFM,Austria/Belgium/Czech Republic/Denmark/Estonia/Finland/France/Germany/Greece/Hungary/Ireland/Italy/Luxembourg/Netherlands/Norway/Poland/Portugal/Romania/Spain/Sweden/Switzerland/United Kingdom/Canada,European Space Agency,Commercial,Navigation,MEO,21-10-11,Guiana Space Center,5.2079;-52.7724,Long March 3A
 Galileo IOV-2 FM3,Austria/Belgium/Czech Republic/Denmark/Estonia/Finland/France/Germany/Greece/Hungary/Ireland/Italy/Luxembourg/Netherlands/Norway/Poland/Portugal/Romania/Spain/Sweden/Switzerland/United Kingdom/Canada,European Space Agency,Commercial,Navigation,MEO,12-10-12,Guiana Space Center,5.2079;-52.7724,Long March 3B
 Galileo IOV-2 FM4,Austria/Belgium/Czech Republic/Denmark/Estonia/Finland/France/Germany/Greece/Hungary/Ireland/Italy/Luxembourg/Netherlands/Norway/Poland/Portugal/Romania/Spain/Sweden/Switzerland/United Kingdom/Canada,European Space Agency,Commercial,Navigation,MEO,12-10-12,Guiana Space Center,5.2079;-52.7724,Long March 3B
-Galileo IOV-1 FM2,Austria/Belgium/Czech Republic/Denmark/Estonia/Finland/France/Germany/Greece/Hungary/Ireland/Italy/Luxembourg/Netherlands/Norway/Poland/Portugal/Romania/Spain/Sweden/Switzerland/United Kingdom/Canada,European Space Agency,Commerical,Navigation,MEO,21-10-11,Guiana Space Center,5.2079;-52.7724,Long March 3B
+Galileo IOV-1 FM2,Austria/Belgium/Czech Republic/Denmark/Estonia/Finland/France/Germany/Greece/Hungary/Ireland/Italy/Luxembourg/Netherlands/Norway/Poland/Portugal/Romania/Spain/Sweden/Switzerland/United Kingdom/Canada,European Space Agency,Commercial,Navigation,MEO,21-10-11,Guiana Space Center,5.2079;-52.7724,Long March 3B
 O3b FM02,United Kingdom,O3b Networks Ltd.,Commercial,Communications,MEO,25-06-13,Guiana Space Center,5.2079;-52.7724,Long March 3B
 O3b FM04,United Kingdom,O3b Networks Ltd.,Commercial,Communications,MEO,25-06-13,Guiana Space Center,5.2079;-52.7724,Long March 3B
 O3b FM05 (Other 3 Billion),United Kingdom,O3b Networks Ltd.,Commercial,Communications,MEO,25-06-13,Guiana Space Center,5.2079;-52.7724,Long March 3B
@@ -844,7 +844,7 @@ Yaogan 20C (Remote Sensing Satellite 20C),China,People's Liberation Army (C41),M
 Yaogan 25A (Remote Sensing Satellite 25A),China,People's Liberation Army (C41),Military,Earth Observation,LEO,10-12-14,Jiuquan Satellite Launch Center,40.9675;100.278611,Long March 6
 Yaogan 25B (Remote Sensing Satellite 25B),China,People's Liberation Army (C41),Military,Earth Observation,LEO,10-12-14,Jiuquan Satellite Launch Center,40.9675;100.278611,Long March 6
 Yaogan 25C (Remote Sensing Satellite 25C),China,People's Liberation Army (C41),Military,Earth Observation,LEO,10-12-14,Jiuquan Satellite Launch Center,40.9675;100.278611,Long March CZ-2E
-Yaogan 20B (Remote Sensing Satellite 20B),China,People's Liberation Army (C41),Military ,Earth Observation,LEO,09-08-14,Jiuquan Satellite Launch Center,40.9675;100.278611,Long March CZ3B
+Yaogan 20B (Remote Sensing Satellite 20B),China,People's Liberation Army (C41),Military,Earth Observation,LEO,09-08-14,Jiuquan Satellite Launch Center,40.9675;100.278611,Long March CZ3B
 "PCSat (Prototype Communications SATellite, Navy-Oscar 44, NO-44)",United States of America,US Naval Academy,Government,Communications/Technology Development,LEO,30-09-01,Kodiak Launch Complex,57.435833;-152.337778,Long March CZ3B
 TacSat 4,United States of America,Naval Research Laboratory,Military,Technology Development,Elliptical,27-09-11,Kodiak Launch Complex,57.435833;-152.337778,M5
 "O/OREOS (Organism/Organic Exposure to Orbital Stresses, United States of America 219)",United States of America,NASA-Ames Research Center/Stanford University,Government/Civil,Space Science,LEO,20-11-10,Kodiak Launch Complex,57.435833;-152.337778,Minotaur
