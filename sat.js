@@ -320,19 +320,43 @@ function gen_sunburst() {
 	workingDataset.forEach(function(d) {
 		var userText = d["Users"];
 		var users = userText.split("/");
+		var purposeText = d["Purpose"];
+		var purposes = purposeText.split("/");
 		
 		users.forEach(function(user){
 			var foundUser = false;
 			for(i = 0; i < usersJson.children.length; ++i) {
 				if (usersJson.children[i].name === user) {
-					usersJson.children[i].size++; 
 					foundUser = true;
+					
+					purposes.forEach( function(purpose) {
+						var foundPurpose = false;
+						for(j = 0; j < usersJson.children[i].children.length; ++j) {
+							if (usersJson.children[i].children[j].name === purpose) {
+								usersJson.children[i].children[j].size++;
+								
+								foundPurpose = true;
+							}
+						}
+
+						if (!foundPurpose) {
+							usersJson.children[i].children.push({name: purpose, size: 1});
+						}
+					});
 				}
 			}
 
 			if (!foundUser) {
-				usersJson.children.push({ name: user, size : 1});
-			}	
+				usersJson.children.push({name: user, children : []});
+				
+				for(var j = 0; j < usersJson.children.length; j++){
+					if (usersJson.children[j].name === user){
+						purposes.forEach( function(purpose) {
+							usersJson.children[j].children.push({name: purpose, size: 1});
+						});	
+					}
+				}
+			}
 		});
 	});
 	
@@ -348,7 +372,7 @@ function gen_sunburst() {
 	  .data(partition.nodes)
 	.enter().append("path")
 	  .attr("d", arc)
-      .style("fill", function(d) { /*console.log((d.children ? d : d).name); console.log (color((d.children ? d : d).name)); */return color((d.children ? d : d).name); })
+      .style("fill", function(d) { /*console.log((d.children ? d : d).name); */return color((d.children ? d : d).name); })
 	  .on("click", click)
 	  .each(stash);
 
