@@ -319,12 +319,12 @@ function gen_timeline(){
 	  	console.log("c");
 
 	  	var d0 = brush.extent().map(x.invert),
-	      d1 = d0.map(d3.time.interval.round);
+	      d1 = d0.map(d3.time.year.round);
 
 	  	// If empty when rounded, use floor & ceil instead.
 	  	if (d1[0] >= d1[1]) {	
-	    	d1[0] = d3.timeDay.floor(d0[0]);
-	    	d1[1] = d3.timeDay.offset(d1[0]);
+	    	d1[0] = d3.time.day.floor(d0[0]);
+	    	d1[1] = d3.time.day.offset(d1[0]);
 	  	}
 
   		d3.select(this).transition().call(d3.event.target.move, d1.map(x));
@@ -332,9 +332,8 @@ function gen_timeline(){
 }
 
 function gen_sunburst() {
-
-	var width = 960,
-	    height = 700,
+	var width = 640,
+	    height = 500,
 	    radius = Math.min(width, height) / 2;
 
 	var x = d3.scale.linear()
@@ -352,7 +351,7 @@ function gen_sunburst() {
 	    .attr("transform", "translate(" + width / 2 + "," + (height / 2 + 10) + ")");
 
 	var partition = d3.layout.partition()
-	    .sort(null)
+	    //.sort(null)   // sort(null) to ignore order
 	    .value(function(d) { return d.size; });
 
 	var arc = d3.svg.arc()
@@ -363,7 +362,8 @@ function gen_sunburst() {
 
 	// Keep track of the node that is currently being displayed as the root.
 	var usersJson = {};
-	usersJson.name = "users";
+	// Use this to write stuff in the middle
+	usersJson.name = "";
 	usersJson.children = [];
 	workingDataset.forEach(function(d) {
 		var userText = d["Users"];
@@ -407,44 +407,50 @@ function gen_sunburst() {
 			}
 		});
 	});
-	
-	//console.log(JSON.stringify(usersJson));
 
-	// trocar isto para os nossos dados e po-los em json
-	var node = usersJson;
-	  var g = svg.selectAll("g")
+	var node = usersJson;	
+
+	var g = svg.selectAll("g")
       .data(partition.nodes(node))
-    .enter().append("g");
+      .enter().append("g");
 
-	var path = svg.datum(node).selectAll("path")
-	  .data(partition.nodes)
-	.enter().append("path")
+    var path = g
+	  .append("path")
 	  .attr("d", arc)
       .style("fill", function(d) { /*console.log((d.children ? d : d).name); */return color((d.children ? d : d).name); })
 	  .on("click", click)
 	  .each(stash);
 
+	d3.select(self.frameElement).style("height", height + "px");
 
-	d3.selectAll("input").on("change", function change() {
-	var value = this.value === "count"
-	    ? function() { return 1; }
-	    : function(d) { return d.size; };
-
-	path
-	    .data(partition.value(value).nodes)
-	  .transition()
-	    .duration(1000)
-	    .attrTween("d", arcTweenData);
-	});
+ 	var text = g.append("text")
+	    .attr("transform", function(d) { return "rotate(" + computeTextRotation(d) + ")"; })
+	    .attr("x", function(d) { return y(d.y); })
+	    .attr("dx", "6") // margin
+	    .attr("dy", ".35em") // vertical-align
+	    .text(function(d) { /*console.log("Name: "+d.name);*/return d.name; });
 
 	function click(d) {
-		node = d;
-		path.transition()
-		  .duration(1000)
-		  .attrTween("d", arcTweenZoom(d));
-	}
+		// fade out all text elements
+		text.transition().attr("opacity", 0);
 
-	d3.select(self.frameElement).style("height", height + "px");
+		path.transition()
+		  .duration(750)
+		  .attrTween("d", arcTweenZoom(d))
+		  .each("end", function(e, i) {
+		      // check if the animated element's data e lies within the visible angle span given in d
+		      if (e.x >= d.x && e.x < (d.x + d.dx)) {
+		        // get a selection of the associated text element
+		        var arcText = d3.select(this.parentNode).select("text");
+		        console.log(this.parentNode);
+		        // fade in the text element and recalculate positions
+		        arcText.transition().duration(750)
+		          .attr("opacity", 1)
+		          .attr("transform", function() { return "rotate(" + computeTextRotation(e) + ")" })
+		          .attr("x", function(d) { return y(d.y); });
+		      }
+		});
+	}
 
 	function computeTextRotation(d) {
   		return (x(d.x + d.dx / 2) - Math.PI / 2) / Math.PI * 180;
@@ -489,13 +495,6 @@ function gen_sunburst() {
 	        : function(t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); return arc(d); };
 	  };
 	}
-
- 	var text = g.append("text")
-	    .attr("transform", function(d) { return "rotate(" + computeTextRotation(d) + ")"; })
-	    .attr("x", function(d) { return y(d.y); })
-	    .attr("dx", "6") // margin
-	    .attr("dy", ".35em") // vertical-align
-	    .text(function(d) { /*console.log("Name: "+d.name);*/return d.name; });
 }
 
 function test(){
