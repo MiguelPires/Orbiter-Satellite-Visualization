@@ -252,9 +252,15 @@ function gen_timeline(){
 	var y = d3.scale.linear()
 		.rangeRound([height, 0]);
 
-	var line = d3.svg.line()
-		.x(function(d) { /*console.log("In: " + d +"; Out: " + x(d));*/ return x(d); })
-		.y(function(d, i) { /*console.log(y(i+1));*/ return y(i+1); });
+/*	var line = d3.svg.line()
+		.x(function(d) { console.log("In: " + d +"; Out: " + x(d)); return x(d); })
+		.y(function(d, i) { console.log(y(i+1)); return y(i+1); });*/
+
+	var area = d3.svg.area()
+      .interpolate("monotone")
+      .x(function (d) { return x(d); })
+      .y0(height)
+      .y1(function (d, i) { return y(i+1); });
 
 	//console.log(dates);
 
@@ -265,9 +271,10 @@ function gen_timeline(){
 	.attr("transform", "translate(0," + height + ")")
 	.call(d3.svg.axis().scale(x).orient("bottom"));
 
+	var xAxis = d3.svg.axis().scale(y).orient("left").ticks(4);
 	g.append("g")
 	.attr("class", "axis axis--y")
-	.call(d3.svg.axis().scale(y).orient("left").ticks(4))
+	.call(xAxis)
 	.append("text")
 	.attr("fill", "#000")
 	//.attr("transform", "rotate(-90)")
@@ -277,10 +284,51 @@ function gen_timeline(){
 	.style("text-anchor", "end")
 	.text("Launches");
 
+
 	g.append("path")
 	.datum(dates)
+	.attr("class", "area")
+	.attr("d", area);
+
+	/*g.append("path")
+	.datum(dates)
 	.attr("class", "line")
-	.attr("d", line);
+	.attr("d", line);*/
+
+  var context = svg.append("g")
+      .attr("class", "context")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  	var brush = d3.svg.brush()
+      .x(x)
+      .on("brush", brushed);
+
+    context.append("g")
+        .attr("class", "x brush")
+        .call(brush)
+      .selectAll("rect")
+        .attr("y", -6)
+        .attr("height", height + 7);
+
+    // TODO: change this to implement brush snapping
+	function brushed() {
+		console.log("a");
+		if (!d3.event.sourceEvent) return; // Only transition after input.
+		console.log("b");
+	  	if (!brush.extent()) return; // Ignore empty selections.
+	  	console.log("c");
+
+	  	var d0 = brush.extent().map(x.invert),
+	      d1 = d0.map(d3.time.interval.round);
+
+	  	// If empty when rounded, use floor & ceil instead.
+	  	if (d1[0] >= d1[1]) {	
+	    	d1[0] = d3.timeDay.floor(d0[0]);
+	    	d1[1] = d3.timeDay.offset(d1[0]);
+	  	}
+
+  		d3.select(this).transition().call(d3.event.target.move, d1.map(x));
+	}
 }
 
 function gen_sunburst() {
@@ -360,7 +408,7 @@ function gen_sunburst() {
 		});
 	});
 	
-	console.log(JSON.stringify(usersJson));
+	//console.log(JSON.stringify(usersJson));
 
 	// trocar isto para os nossos dados e po-los em json
 	var node = usersJson;
@@ -376,12 +424,6 @@ function gen_sunburst() {
 	  .on("click", click)
 	  .each(stash);
 
- 	var text = g.append("text")
-	    .attr("transform", function(d) { return "rotate(" + computeTextRotation(d) + ")"; })
-	    .attr("x", function(d) { return y(d.y); })
-	    .attr("dx", "6") // margin
-	    .attr("dy", ".35em") // vertical-align
-	    .text(function(d) { console.log("Name: "+d.name);return d.name; });
 
 	d3.selectAll("input").on("change", function change() {
 	var value = this.value === "count"
@@ -394,7 +436,6 @@ function gen_sunburst() {
 	    .duration(1000)
 	    .attrTween("d", arcTweenData);
 	});
-
 
 	function click(d) {
 		node = d;
@@ -448,105 +489,181 @@ function gen_sunburst() {
 	        : function(t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); return arc(d); };
 	  };
 	}
+
+ 	var text = g.append("text")
+	    .attr("transform", function(d) { return "rotate(" + computeTextRotation(d) + ")"; })
+	    .attr("x", function(d) { return y(d.y); })
+	    .attr("dx", "6") // margin
+	    .attr("dy", ".35em") // vertical-align
+	    .text(function(d) { /*console.log("Name: "+d.name);*/return d.name; });
 }
 
-
-/*
 function test(){
-	var random = d3.random.normal(0, 0.2),
-    sqrt3 = Math.sqrt(3),
-    points0 = d3.range(300).map(function() { return [random() + sqrt3, random() + 1, 0]; }),
-    points1 = d3.range(300).map(function() { return [random() - sqrt3, random() + 1, 1]; }),
-    points2 = d3.range(300).map(function() { return [random(), random() - 1, 2]; }),
-    points = d3.merge([points0, points1, points2]);
 
-    var width = 960;
-    var height = 600;
-	var svg = d3.select("#test")
-	.append("svg")
-	.attr("width",width)
-	.attr("height",height);
+	var dates = new Array();
+	workingDataset.forEach(function(d) {
+		dateText = d["Date of Launch"];
+		dateParts = dateText.split("-");
+		
+		var year = dateParts[2] > 20 ? "19"+dateParts[2] : "20"+dateParts[2];
+		var date = new Date(year, dateParts[1], dateParts[0]);
+		dates.push(date);
+	});
 
-	var k = height / width,
-	    x0 = [-4.5, 4.5],
-	    y0 = [-4.5 * k, 4.5 * k],
-	    x = d3.scale.linear().domain(x0).range([0, width]),
-	    y = d3.scale.linear().domain(y0).range([height, 0]),
-	    z = d3.scale.ordinal(d3.schemeCategory10);
+	dates.sort(function(a, b){
+		return a - b;
+	});
 
-	var xAxis = d3.svg.axis().scale(x).orient("top").ticks(12),
-	    yAxis = d3.svg.axis().scale(y).orient("right").ticks(12 * height / width);
+	
+  var margin = { top: 10, right: 10, bottom: 100, left: 40 },
+      margin2 = { top: 430, right: 10, bottom: 20, left: 40 },
+      width = 960 - margin.left - margin.right,
+      height = 500 - margin.top - margin.bottom,
+      height2 = 500 - margin2.top - margin2.bottom;
 
-var brush = d3.svg.brush()
-    .extent([[0, 0], [width, height]])
-    .x(x)
-    .on("brush", brushed);
+  var parseDate = d3.time.format("%b %Y").parse;
 
-	//var brush = d3.svg.brush().on("end", brushended);
-	var idleTimeout;
-	var idleDelay = 350;
+  var x = d3.time.scale().range([0, width]),
+      x2 = d3.time.scale().range([0, width]),
+      y = d3.scale.linear().range([height, 0]),
+      y2 = d3.scale.linear().range([height2, 0]);
 
-	svg.selectAll("circle")
-	  .data(points)
-	  .enter().append("circle")
-	    .attr("cx", function(d) { return x(d[0]); })
-	    .attr("cy", function(d) { return y(d[1]); })
-	    .attr("r", 2.5)
-	    .attr("fill", function(d) { return z(d[2]); });
+  var xAxis = d3.svg.axis().scale(x).orient("bottom"),
+      xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
+      yAxis = d3.svg.axis().scale(y).orient("left");
 
-	svg.append("g")
-	    .attr("class", "axis axis--x")
-	    .attr("transform", "translate(0," + (height - 10) + ")")
-	    .call(xAxis);
+  var brush = d3.svg.brush()
+      .x(x2)
+      .on("brush", brushed);
 
-	svg.append("g")
-	    .attr("class", "axis axis--y")
-	    .attr("transform", "translate(10,0)")
-	    .call(yAxis);
+  var area = d3.svg.area()
+      .interpolate("monotone")
+      .x(function (d) { return x(d); })
+      .y0(height)
+      .y1(function (d, i) { return y(i+1); });
 
-	svg.selectAll(".domain")
-	    .style("display", "none");
+  var area2 = d3.svg.area()
+      .interpolate("monotone")
+      .x(function (d) { return x2(d); })
+      .y0(height2)
+      .y1(function (d, i) { return y2(i+1); });
 
-	svg.append("g")
-	    .attr("class", "brush")
-	    .call(brush);
 
-	function brushended() {
-	  var s = d3.event.selection;
-	  if (!s) {
-	    if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
-	    x.domain(x0);
-	    y.domain(y0);
-	  } else {
-	    x.domain([s[0][0], s[1][0]].map(x.invert, x));
-	    y.domain([s[1][1], s[0][1]].map(y.invert, y));
-	    svg.select(".brush").call(brush.move, null);
-	  }
-	  zoom();
-	}
 
-	function idled() {
-	  idleTimeout = null;
-	}
+  // make some buttons to drive our zoom
+  d3.select("body").append("div")
+    .attr("id","btnDiv")
+    .style('font-size','75%')
+    .style("width","250px")
+    .style("position","absolute")
+    .style("left","5%")
+    .style("top","200px")
 
-	function zoom() {
-	  var t = svg.transition().duration(750);
-	  svg.select(".axis--x").transition(t).call(xAxis);
-	  svg.select(".axis--y").transition(t).call(yAxis);
-	  svg.selectAll("circle").transition(t)
-	      .attr("cx", function(d) { return x(d[0]); })
-	      .attr("cy", function(d) { return y(d[1]); });
-	}
+  d3.select("#btnDiv")[0][0].innerHTML = [
+    '<h3>Buttons To Drive Our Zoom</h3>',
+    '<p>push a button and watch the brush react</p>',
+    '<ul>',
+    '<li>note: deliberately slowed down so each step can be seen and demonstrate how to inject transition</li>',
+    '<li>also, play with the brush after drawn to see how it acts as if we drew with our mouse</li>',
+    '</ul>'
+  ].join('\n')
+  
+  var btns = d3.select("#btnDiv").selectAll("button").data([2001, 2002, 2003, 2004])
+
+  btns = btns.enter().append("button").style("display","inline-block")
+
+  // fill the buttons with the year from the data assigned to them
+  btns.each(function (d) {
+    this.innerText = d;
+  })
+
+  btns.on("click", drawBrush);
+
+  function drawBrush() {
+    // our year will this.innerText
+    console.log(this.innerText)
+
+    // define our brush extent to be begin and end of the year
+    brush.extent([new Date(this.innerText + '-01-01'), new Date(this.innerText + '-12-31')])
+
+    // now draw the brush to match our extent
+    // use transition to slow it down so we can see what is happening
+    // remove transition so just d3.select(".brush") to just draw
+    brush(d3.select(".brush").transition());
+
+    // now fire the brushstart, brushmove, and brushend events
+    // remove transition so just d3.select(".brush") to just draw
+    brush.event(d3.select(".brush").transition().delay(1000))
+  }
+
+  var svg = d3.select("body").append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom);
+
+  svg.append("defs").append("clipPath")
+      .attr("id", "clip")
+    .append("rect")
+      .attr("width", width)
+      .attr("height", height);
+
+  var focus = svg.append("g")
+      .attr("class", "focus")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  var context = svg.append("g")
+      .attr("class", "context")
+      .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
+
+
+    x.domain(d3.extent(dates.map(function (d) { return d; })));
+    y.domain([0, d3.max(dates.map(function (d ,i) { return i+1; }))]);
+    x2.domain(x.domain());
+    y2.domain(y.domain());
+
+    focus.append("path")
+        .datum(dates)
+        .attr("class", "area")
+        .attr("d", area);
+
+    focus.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    focus.append("g")
+        .attr("class", "y axis")
+        .call(yAxis);
+
+    context.append("path")
+        .datum(dates)
+        .attr("class", "area")
+        .attr("d", area2);
+
+    context.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height2 + ")")
+        .call(xAxis2);
+
+    context.append("g")
+        .attr("class", "x brush")
+        .call(brush)
+      .selectAll("rect")
+        .attr("y", -6)
+        .attr("height", height2 + 7);
+
+  function brushed() {
+    x.domain(brush.empty() ? x2.domain() : brush.extent());
+    focus.select(".area").attr("d", area);
+    focus.select(".x.axis").call(xAxis);
+  }
+
+  function type(d) {
+    d.date = parseDate(d.date);
+    d.price = +d.price;
+    return d;
+  }
 }
-function brushed() {
-  x.domain(brush.empty() ? x2.domain() : brush.extent());
-  focus.select(".x.axis").call(xAxis);
-  mydots.selectAll(".circle")
-   .attr("cx", xMap)
-   .attr("cy", yMap);
-  console.log(brush.extent())
-}
-*/
+
 // sorts an associative array in decreasing order of value
 function sortAssociativeArray(assocArray) {
 	var sortedCount = [];
