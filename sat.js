@@ -20,7 +20,7 @@ d3.csv("data.csv", function (data) {
 	gen_map();
 	gen_timeline();
 //	test();
-	gen_sunburst();
+gen_sunburst();
 });
 
 function gen_bars() {
@@ -113,12 +113,12 @@ function gen_map() {
 				countryValue = countryCount[country];
 
 				code = countryCodePairs[country];
-		dataset[code] = { value : countryValue, fillColor: paletteScale(countryValue)};
-	});
+				dataset[code] = { value : countryValue, fillColor: paletteScale(countryValue)};
+			});
 
-	var map = new Datamap({
-		element: document.getElementById('map'),
-		data: dataset,
+			var map = new Datamap({
+				element: document.getElementById('map'),
+				data: dataset,
 		scope: 'world', //currently supports 'usa' and 'world', however with custom map data you can specify your own
 	  //  setProjection: setProjection, //returns a d3 path and projection functions
 		projection: 'equirectangular', //style of projection to be used. try "mercator"
@@ -128,8 +128,8 @@ function gen_map() {
 		done: function() {}, //callback when the map is done drawing
 		fills: {
 		  defaultFill: 'gray' //the keys in this object map to the "fillKey" of [data] or [bubbles]
-	  },
-	  geographyConfig: {
+		},
+		geographyConfig: {
 			dataUrl: null, //if not null, datamaps will fetch the map JSON (currently only supports topojson)
 			hideAntarctica: true,
 			borderWidth: 0.5,
@@ -173,7 +173,7 @@ function gen_map() {
 		}
 	});
 
-	gen_bubbles(map);
+			gen_bubbles(map);
 
 	// Draw a legend for this map
 	map.legend();
@@ -203,7 +203,9 @@ function gen_bubbles (map) {
 
 	// normalize bubble size
 	Object.keys(launchSites).forEach(function(site) {
-		launchSites[site].radius = launchSites[site].occurrences * 50 / mostOccurrences;
+		// normalize
+		//var norm = launchSites[site].occurrences * 50 / mostOccurrences;
+		launchSites[site].radius = Math.round(Math.log(launchSites[site].occurrences))*5;
 	})
 
 	// draw bubbles
@@ -216,7 +218,7 @@ function gen_bubbles (map) {
 }
 
 function gen_timeline(){
-	var w = 800; 
+	var w = d3.select("#map").select("svg").attr("width"); 
 	var h = 100;
 
 	var dates = new Array();
@@ -246,21 +248,21 @@ function gen_timeline(){
 	var parseTime = d3.time.format("%d-%B-%y");
 
 	var x = d3.time.scale()
-		.domain([dates[0], dates[dates.length-1]])
-		.rangeRound([0, width]);
+	.domain([dates[0], dates[dates.length-1]])
+	.rangeRound([0, width]);
 
 	var y = d3.scale.linear()
-		.rangeRound([height, 0]);
+	.rangeRound([height, 0]);
 
 /*	var line = d3.svg.line()
 		.x(function(d) { console.log("In: " + d +"; Out: " + x(d)); return x(d); })
 		.y(function(d, i) { console.log(y(i+1)); return y(i+1); });*/
 
-	var area = d3.svg.area()
-      .interpolate("monotone")
-      .x(function (d) { return x(d); })
-      .y0(height)
-      .y1(function (d, i) { return y(i+1); });
+		var area = d3.svg.area()
+		.interpolate("monotone")
+		.x(function (d) { return x(d); })
+		.y0(height)
+		.y1(function (d, i) { return y(i+1); });
 
 	//console.log(dates);
 
@@ -295,66 +297,89 @@ function gen_timeline(){
 	.attr("class", "line")
 	.attr("d", line);*/
 
-  var context = svg.append("g")
-      .attr("class", "context")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	var context = svg.append("g")
+	.attr("class", "context")
+	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  	var brush = d3.svg.brush()
-      .x(x)
-      .on("brush", brushed);
+	var brush = d3.svg.brush()
+	.x(x)
+	.on("brush", brushed);
 
-    context.append("g")
-        .attr("class", "x brush")
-        .call(brush)
-      .selectAll("rect")
-        .attr("y", -6)
-        .attr("height", height + 7);
+	context.append("g")
+	.attr("class", "x brush")
+	.call(brush)
+	.selectAll("rect")
+	.attr("y", -6)
+	.attr("height", height + 7);
 
     // TODO: change this to implement brush snapping
-	function brushed() {
-		console.log("a");
+    function brushed() {
 		if (!d3.event.sourceEvent) return; // Only transition after input.
-		console.log("b");
 	  	if (!brush.extent()) return; // Ignore empty selections.
-	  	console.log("c");
 
+	  	//FIX :  already changed the brush snapping settings and its not working
 	  	var d0 = brush.extent().map(x.invert),
-	      d1 = d0.map(d3.time.year.round);
+	  	d1 = d0.map(d3.time.year.round);
+
+	  	var startYear = brush.extent()[0].getFullYear();
+	  	var endYear = brush.extent()[1].getFullYear();
+
+	  	var dates = new Array();
+
+	  	workingDataset = dataset.filter( function(row) {
+	  		dateText = row["Date of Launch"];
+	  		dateParts = dateText.split("-");
+
+	  		var year = dateParts[2] > 20 ? "19"+dateParts[2] : "20"+dateParts[2];
+
+	  		if(year >= startYear && year <= endYear){
+	  			return true;
+	  		}
+	  		else {
+	  			return false;
+	  		}
+	  	});
+
+    		// TODO: change this to only update the chart instead of redrawing it
+    		if(workingDataset.length > 0){
+    			d3.select("#map").select("svg").remove();
+    			gen_map();
+    		}
 
 	  	// If empty when rounded, use floor & ceil instead.
 	  	if (d1[0] >= d1[1]) {	
-	    	d1[0] = d3.time.day.floor(d0[0]);
-	    	d1[1] = d3.time.day.offset(d1[0]);
+	  		d1[0] = d3.time.day.floor(d0[0]);
+	  		d1[1] = d3.time.day.offset(d1[0]);
 	  	}
 
-  		d3.select(this).transition().call(d3.event.target.move, d1.map(x));
-	}
-}
+  		//d3.select(this).transition().call(d3.event.target.move, d1.map(x));
+  	}
+  }
 
-function gen_sunburst() {
-	var width = 640,
-	    height = 500,
-	    radius = Math.min(width, height) / 2;
+  function gen_sunburst() {
+  	var width = 640,
+  	height = 500,
+  	radius = Math.min(width, height) / 2;
 
-	var x = d3.scale.linear()
-	    .range([0, 2 * Math.PI]);
+  	var x = d3.scale.linear()
+  	.range([0, 2 * Math.PI]);
 
-	var y = d3.scale.sqrt()
-	    .range([0, radius]);
+  	var y = d3.scale.sqrt()
+  	.range([0, radius]);
 
-	var color = d3.scale.category20c();
+  	var color = d3.scale.category20c();
 
-	var svg = d3.select("body").append("svg")
-	    .attr("width", width)
-	    .attr("height", height)
-	  .append("g")
-	    .attr("transform", "translate(" + width / 2 + "," + (height / 2 + 10) + ")");
+  	var svg = d3.select("body").append("svg")
+  	.attr("width", width)
+  	.attr("height", height)
+  	.append("g")
+  	.attr("transform", "translate(" + width / 2 + "," + (height / 2 + 10) + ")");
 
-	var partition = d3.layout.partition()
+  	var partition = d3.layout.partition()
 	    //.sort(null)   // sort(null) to ignore order
 	    .value(function(d) { return d.size; });
 
-	var arc = d3.svg.arc()
+	    var arc = d3.svg.arc()
 	    .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); })
 	    .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
 	    .innerRadius(function(d) { return Math.max(0, y(d.y)); })
@@ -411,89 +436,132 @@ function gen_sunburst() {
 	var node = usersJson;	
 
 	var g = svg.selectAll("g")
-      .data(partition.nodes(node))
-      .enter().append("g");
+	.data(partition.nodes(node))
+	.enter().append("g");
 
-    var path = g
-	  .append("path")
-	  .attr("d", arc)
-      .style("fill", function(d) { /*console.log((d.children ? d : d).name); */return color((d.children ? d : d).name); })
-	  .on("click", click)
-	  .each(stash);
+	var path = g
+	.append("path")
+	.attr("d", arc)
+	.style("fill", function(d) { /*console.log((d.children ? d : d).name); */return color((d.children ? d : d).name); })
+	.on("click", click)
+	.each(stash);
 
-	d3.select(self.frameElement).style("height", height + "px");
+	  // Define the div for the tooltip
+	  var div = d3.select("body").append("div")	
+	  .attr("class", "tooltip")				
+	  .style("opacity", 0);
 
- 	var text = g.append("text")
-	    .attr("transform", function(d) { return "rotate(" + computeTextRotation(d) + ")"; })
-	    .attr("x", function(d) { return y(d.y); })
-	    .attr("dx", "6") // margin
-	    .attr("dy", ".35em") // vertical-align
-	    .text(function(d) { /*console.log("Name: "+d.name);*/return d.name; });
 
-	function click(d) {
+	  path.on("mouseover", function(d) {
+	  	if (typeof d.name === "undefined" || d.name === "") return;		
+
+	  	div.transition()		
+	  	.duration(200)		
+	  	.style("opacity", .9);		
+	  })					
+	  .on("mouseout", function(d) {		
+	  	div.transition()		
+	  	.duration(500)		
+	  	.style("opacity", 0);
+	  })
+	  .on("mousemove", function(d) {
+
+		if (typeof d.name === "undefined" || d.name === "") return;	
+
+			div.text(d.name + "\n")
+			.style("left", (d3.event.pageX - 34) + "px")
+			.style("top", (d3.event.pageY - 12) + "px");
+
+		if(typeof d.size === "undefined") return;
+			div.append("tspan")
+			.attr("dy", (d3.event.pageY - 12) + 12)
+			.attr("x", (d3.event.pageX - 34) + 12)
+			.text("Launches: " + d.size);
+	  });	
+
+	  d3.select(self.frameElement).style("height", height + "px");
+
+	  var text = g.append("text");
+
+	  function click(d) {
 		// fade out all text elements
 		text.transition().attr("opacity", 0);
 
 		path.transition()
-		  .duration(750)
-		  .attrTween("d", arcTweenZoom(d))
-		  .each("end", function(e, i) {
-		      // check if the animated element's data e lies within the visible angle span given in d
-		      if (e.x >= d.x && e.x < (d.x + d.dx)) {
-		        // get a selection of the associated text element
-		        var arcText = d3.select(this.parentNode).select("text");
-		        console.log(this.parentNode);
-		        // fade in the text element and recalculate positions
-		        arcText.transition().duration(750)
-		          .attr("opacity", 1)
-		          .attr("transform", function() { return "rotate(" + computeTextRotation(e) + ")" })
-		          .attr("x", function(d) { return y(d.y); });
-		      }
+		.duration(750)
+		.attrTween("d", arcTweenZoom(d))
+		.each("end", function(e, i) {
+			if (typeof d.children === "undefined" && e.parent === d.parent) {
+
+				 // check if the animated element's data e lies within the visible angle span given in d
+				 if (e.x >= d.x && e.x < (d.x + d.dx)) {
+
+			        // get a selection of the associated text element
+			        var arcText = d3.select(this.parentNode).select("text");
+
+			        arcText.text(function(d) { return d.name; })
+			        // fade in the text element and recalculate positions
+			        arcText.transition().duration(750)
+			        .attr("opacity", 1)
+			        .attr("x", function(d) { return y(d.y) + 10; })
+			        .attr("y", function(d) { return (d.y) + 10; })
+			        .style("font-size","18px");
+
+		          	arcText.append("tspan").transition().duration(750)
+		          	.attr("opacity", 1)
+					.attr("dy", "1.4em") // offest by 1.2 em
+					.attr("x", function(d) { return y(d.y) + 12; })
+					.text(function(d) {return  "Launches: " + d.size;})
+					.style("font-size","18px");
+				}	
+			}  
 		});
+
+
 	}
 
 	function computeTextRotation(d) {
-  		return (x(d.x + d.dx / 2) - Math.PI / 2) / Math.PI * 180;
+		return (x(d.x + d.dx / 2) - Math.PI / 2) / Math.PI * 180;
 	}
 
 	// Setup for switching data: stash the old values for transition.
 	function stash(d) {
-	  d.x0 = d.x;
-	  d.dx0 = d.dx;
+		d.x0 = d.x;
+		d.dx0 = d.dx;
 	}
 
 	// When switching data: interpolate the arcs in data space.
 	function arcTweenData(a, i) {
-	  var oi = d3.interpolate({x: a.x0, dx: a.dx0}, a);
-	  function tween(t) {
-	    var b = oi(t);
-	    a.x0 = b.x;
-	    a.dx0 = b.dx;
-	    return arc(b);
-	  }
-	  if (i == 0) {
+		var oi = d3.interpolate({x: a.x0, dx: a.dx0}, a);
+		function tween(t) {
+			var b = oi(t);
+			a.x0 = b.x;
+			a.dx0 = b.dx;
+			return arc(b);
+		}
+		if (i == 0) {
 	   // If we are on the first arc, adjust the x domain to match the root node
 	   // at the current zoom level. (We only need to do this once.)
-	    var xd = d3.interpolate(x.domain(), [node.x, node.x + node.dx]);
-	    return function(t) {
-	      x.domain(xd(t));
-	      return tween(t);
-	    };
-	  } else {
-	    return tween;
-	  }
+	   var xd = d3.interpolate(x.domain(), [node.x, node.x + node.dx]);
+	   return function(t) {
+	   	x.domain(xd(t));
+	   	return tween(t);
+	   };
+	} else {
+		return tween;
 	}
+}
 
 	// When zooming: interpolate the scales.
 	function arcTweenZoom(d) {
-	  var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
-	      yd = d3.interpolate(y.domain(), [d.y, 1]),
-	      yr = d3.interpolate(y.range(), [d.y ? 20 : 0, radius]);
-	  return function(d, i) {
-	    return i
-	        ? function(t) { return arc(d); }
-	        : function(t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); return arc(d); };
-	  };
+		var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
+		yd = d3.interpolate(y.domain(), [d.y, 1]),
+		yr = d3.interpolate(y.range(), [d.y ? 20 : 0, radius]);
+		return function(d, i) {
+			return i
+			? function(t) { return arc(d); }
+			: function(t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); return arc(d); };
+		};
 	}
 }
 
@@ -514,57 +582,57 @@ function test(){
 	});
 
 	
-  var margin = { top: 10, right: 10, bottom: 100, left: 40 },
-      margin2 = { top: 430, right: 10, bottom: 20, left: 40 },
-      width = 960 - margin.left - margin.right,
-      height = 500 - margin.top - margin.bottom,
-      height2 = 500 - margin2.top - margin2.bottom;
+	var margin = { top: 10, right: 10, bottom: 100, left: 40 },
+	margin2 = { top: 430, right: 10, bottom: 20, left: 40 },
+	width = 960 - margin.left - margin.right,
+	height = 500 - margin.top - margin.bottom,
+	height2 = 500 - margin2.top - margin2.bottom;
 
-  var parseDate = d3.time.format("%b %Y").parse;
+	var parseDate = d3.time.format("%b %Y").parse;
 
-  var x = d3.time.scale().range([0, width]),
-      x2 = d3.time.scale().range([0, width]),
-      y = d3.scale.linear().range([height, 0]),
-      y2 = d3.scale.linear().range([height2, 0]);
+	var x = d3.time.scale().range([0, width]),
+	x2 = d3.time.scale().range([0, width]),
+	y = d3.scale.linear().range([height, 0]),
+	y2 = d3.scale.linear().range([height2, 0]);
 
-  var xAxis = d3.svg.axis().scale(x).orient("bottom"),
-      xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
-      yAxis = d3.svg.axis().scale(y).orient("left");
+	var xAxis = d3.svg.axis().scale(x).orient("bottom"),
+	xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
+	yAxis = d3.svg.axis().scale(y).orient("left");
 
-  var brush = d3.svg.brush()
-      .x(x2)
-      .on("brush", brushed);
+	var brush = d3.svg.brush()
+	.x(x2)
+	.on("brush", brushed);
 
-  var area = d3.svg.area()
-      .interpolate("monotone")
-      .x(function (d) { return x(d); })
-      .y0(height)
-      .y1(function (d, i) { return y(i+1); });
+	var area = d3.svg.area()
+	.interpolate("monotone")
+	.x(function (d) { return x(d); })
+	.y0(height)
+	.y1(function (d, i) { return y(i+1); });
 
-  var area2 = d3.svg.area()
-      .interpolate("monotone")
-      .x(function (d) { return x2(d); })
-      .y0(height2)
-      .y1(function (d, i) { return y2(i+1); });
+	var area2 = d3.svg.area()
+	.interpolate("monotone")
+	.x(function (d) { return x2(d); })
+	.y0(height2)
+	.y1(function (d, i) { return y2(i+1); });
 
 
 
   // make some buttons to drive our zoom
   d3.select("body").append("div")
-    .attr("id","btnDiv")
-    .style('font-size','75%')
-    .style("width","250px")
-    .style("position","absolute")
-    .style("left","5%")
-    .style("top","200px")
+  .attr("id","btnDiv")
+  .style('font-size','75%')
+  .style("width","250px")
+  .style("position","absolute")
+  .style("left","5%")
+  .style("top","200px")
 
   d3.select("#btnDiv")[0][0].innerHTML = [
-    '<h3>Buttons To Drive Our Zoom</h3>',
-    '<p>push a button and watch the brush react</p>',
-    '<ul>',
-    '<li>note: deliberately slowed down so each step can be seen and demonstrate how to inject transition</li>',
-    '<li>also, play with the brush after drawn to see how it acts as if we drew with our mouse</li>',
-    '</ul>'
+  '<h3>Buttons To Drive Our Zoom</h3>',
+  '<p>push a button and watch the brush react</p>',
+  '<ul>',
+  '<li>note: deliberately slowed down so each step can be seen and demonstrate how to inject transition</li>',
+  '<li>also, play with the brush after drawn to see how it acts as if we drew with our mouse</li>',
+  '</ul>'
   ].join('\n')
   
   var btns = d3.select("#btnDiv").selectAll("button").data([2001, 2002, 2003, 2004])
@@ -573,7 +641,7 @@ function test(){
 
   // fill the buttons with the year from the data assigned to them
   btns.each(function (d) {
-    this.innerText = d;
+  	this.innerText = d;
   })
 
   btns.on("click", drawBrush);
@@ -593,86 +661,86 @@ function test(){
     // now fire the brushstart, brushmove, and brushend events
     // remove transition so just d3.select(".brush") to just draw
     brush.event(d3.select(".brush").transition().delay(1000))
-  }
+}
 
-  var svg = d3.select("body").append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom);
+var svg = d3.select("body").append("svg")
+.attr("width", width + margin.left + margin.right)
+.attr("height", height + margin.top + margin.bottom);
 
-  svg.append("defs").append("clipPath")
-      .attr("id", "clip")
-    .append("rect")
-      .attr("width", width)
-      .attr("height", height);
+svg.append("defs").append("clipPath")
+.attr("id", "clip")
+.append("rect")
+.attr("width", width)
+.attr("height", height);
 
-  var focus = svg.append("g")
-      .attr("class", "focus")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+var focus = svg.append("g")
+.attr("class", "focus")
+.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  var context = svg.append("g")
-      .attr("class", "context")
-      .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
+var context = svg.append("g")
+.attr("class", "context")
+.attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
 
 
-    x.domain(d3.extent(dates.map(function (d) { return d; })));
-    y.domain([0, d3.max(dates.map(function (d ,i) { return i+1; }))]);
-    x2.domain(x.domain());
-    y2.domain(y.domain());
+x.domain(d3.extent(dates.map(function (d) { return d; })));
+y.domain([0, d3.max(dates.map(function (d ,i) { return i+1; }))]);
+x2.domain(x.domain());
+y2.domain(y.domain());
 
-    focus.append("path")
-        .datum(dates)
-        .attr("class", "area")
-        .attr("d", area);
+focus.append("path")
+.datum(dates)
+.attr("class", "area")
+.attr("d", area);
 
-    focus.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxis);
+focus.append("g")
+.attr("class", "x axis")
+.attr("transform", "translate(0," + height + ")")
+.call(xAxis);
 
-    focus.append("g")
-        .attr("class", "y axis")
-        .call(yAxis);
+focus.append("g")
+.attr("class", "y axis")
+.call(yAxis);
 
-    context.append("path")
-        .datum(dates)
-        .attr("class", "area")
-        .attr("d", area2);
+context.append("path")
+.datum(dates)
+.attr("class", "area")
+.attr("d", area2);
 
-    context.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + height2 + ")")
-        .call(xAxis2);
+context.append("g")
+.attr("class", "x axis")
+.attr("transform", "translate(0," + height2 + ")")
+.call(xAxis2);
 
-    context.append("g")
-        .attr("class", "x brush")
-        .call(brush)
-      .selectAll("rect")
-        .attr("y", -6)
-        .attr("height", height2 + 7);
+context.append("g")
+.attr("class", "x brush")
+.call(brush)
+.selectAll("rect")
+.attr("y", -6)
+.attr("height", height2 + 7);
 
-  function brushed() {
-    x.domain(brush.empty() ? x2.domain() : brush.extent());
-    focus.select(".area").attr("d", area);
-    focus.select(".x.axis").call(xAxis);
-  }
+function brushed() {
+	x.domain(brush.empty() ? x2.domain() : brush.extent());
+	focus.select(".area").attr("d", area);
+	focus.select(".x.axis").call(xAxis);
+}
 
-  function type(d) {
-    d.date = parseDate(d.date);
-    d.price = +d.price;
-    return d;
-  }
+function type(d) {
+	d.date = parseDate(d.date);
+	d.price = +d.price;
+	return d;
+}
 }
 
 // sorts an associative array in decreasing order of value
 function sortAssociativeArray(assocArray) {
 	var sortedCount = [];
 	for (var key in assocArray) sortedCount.push([key, assocArray[key]]);
-	return sortedCount.sort(function(a, b) {
-		a = a[1];
-		b = b[1];
+		return sortedCount.sort(function(a, b) {
+			a = a[1];
+			b = b[1];
 
-		return a < b ? 1 : (a > b ? -1 : 0);
-	});
+			return a < b ? 1 : (a > b ? -1 : 0);
+		});
 }
 
 function countryOccurrence(countryArray) {

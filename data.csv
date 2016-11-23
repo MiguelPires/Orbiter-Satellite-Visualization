@@ -1322,9 +1322,9 @@ SLDCOM-3 (Satellite Launch Dispenser Communications System) (United States of Am
 "Lacrosse/Onyx 3 (Lacrosse-3, United States of America 133)",United States of America,National Reconnaissance Office (NRO),Military,Earth Observation,LEO,24-10-97,Vandenberg AFB,34.7420;-120.5724,Soyuz-ST
 "Lacrosse/Onyx 4 (Lacrosse-4, United States of America 152)",United States of America,National Reconnaissance Office (NRO),Military,Earth Observation,LEO,17-08-00,Vandenberg AFB,34.7420;-120.5724,Soyuz-ST
 "Keyhole 5 (Advanced KH-11, KH-12-5, Improved Crystal, EIS-3, United States of America 186)",United States of America,National Reconnaissance Office (NRO),Military,Earth Observation,LEO,19-10-05,Vandenberg AFB,34.7420;-120.5724,Soyuz-ST
-Mikhailo Lomonosov (MVL-300),Russia,Moscow State University,Civil/Government,Space Science,LEO,27-04-16,Vostochny Cosmodrome,51.8839402;128.3319234,Soyuz-ST
-AIST-2D,Russia,Samara State Aerospace University,Civil,Technology Development,LEO,27-04-16,Vostochny Cosmodrome,51.8839402;128.3319234,Soyuz-ST
-SAMSAT 218D ,Russia,Samara State Aerospace University,Civil,Technology Development,LEO,27-04-16,Vostochny Cosmodrome,51.8839402;128.3319234,Soyuz-ST
+Mikhailo Lomonosov (MVL-300),Russia,Moscow State University,Civil/Government,Space Science,LEO,27-04-16,Vostochny Cosmodrome,49.8839402;134.3319234,Soyuz-ST
+AIST-2D,Russia,Samara State Aerospace University,Civil,Technology Development,LEO,27-04-16,Vostochny Cosmodrome,49.8839402;134.3319234,Soyuz-ST
+SAMSAT 218D ,Russia,Samara State Aerospace University,Civil,Technology Development,LEO,27-04-16,Vostochny Cosmodrome,49.8839402;134.3319234,Soyuz-ST
 Phonesat 2.4,United States of America,National Aeronautics and Space Administration (NASA),Government,Technology Development,LEO,19-11-13,Wallops Island Flight Facility,37.9367;-75.4699,Soyuz-ST
 NPS-SCAT (Naval Post-graduate School - Solar Cell Array Tester),United States of America,Naval Post-Graduate School,Government,Technology Development,LEO,19-11-13,Wallops Island Flight Facility,37.9367;-75.4699,Soyuz-ST-B
 Firefly,United States of America,NASA/Sienna College/Univ. of Maryland,Government/Civil,Earth Science,LEO,19-11-13,Wallops Island Flight Facility,37.9367;-75.4699,Soyuz-ST-B
