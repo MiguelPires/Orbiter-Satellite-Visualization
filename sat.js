@@ -2,6 +2,7 @@ var dataset;
 var workingDataset = new Array();
 var eventDispatcher = d3.dispatch("launchVehicleEnter");
 var selectedBar, selectedCircle;
+var map;
 
 eventDispatcher.on("launchVehicleEnter", function(lauchVehicle){
 	if (selectedBar != null) {
@@ -107,18 +108,16 @@ function gen_map() {
 	.domain([0,sortedCountryCount[0][1]])
 			.range(["#95b7ed","#0642a3"]); // blue range
 
-			var dataset = {};
-			Object.keys(countryCount).forEach(function(country){
-				var countryValue;
-				countryValue = countryCount[country];
+	var countriesDataset = {};
+	Object.keys(countryCount).forEach(function(country){
+		var countryValue = countryCount[country];
+		code = countryCodePairs[country];
+		countriesDataset[code] = { value : countryValue, fillColor: paletteScale(countryValue)};
+	});
 
-				code = countryCodePairs[country];
-				dataset[code] = { value : countryValue, fillColor: paletteScale(countryValue)};
-			});
-
-			var map = new Datamap({
-				element: document.getElementById('map'),
-				data: dataset,
+	map = new Datamap({
+		element: document.getElementById('map'),
+		data: countriesDataset,
 		scope: 'world', //currently supports 'usa' and 'world', however with custom map data you can specify your own
 	  //  setProjection: setProjection, //returns a d3 path and projection functions
 		projection: 'equirectangular', //style of projection to be used. try "mercator"
@@ -173,13 +172,35 @@ function gen_map() {
 		}
 	});
 
-			gen_bubbles(map);
+	gen_bubbles();
 
 	// Draw a legend for this map
 	map.legend();
 }
 
-function gen_bubbles (map) {
+function update_map(){
+	workingDataset.forEach(function(d){
+		countries.push(d["Country of Owner"]);
+	});
+	countryCount = countryOccurrence(countries);
+	sortedCountryCount = sortAssociativeArray(countryCount);
+
+	var paletteScale = d3.scale.linear()
+		.domain([0,sortedCountryCount[0][1]])
+		.range(["#95b7ed","#0642a3"]); // blue range
+
+	var countriesDataset = {};
+	Object.keys(countryCount).forEach(function(country){
+		var countryValue = countryCount[country];
+		code = countryCodePairs[country];
+		countriesDataset[code] = { value : countryValue, fillColor: paletteScale(countryValue)};
+	});
+
+	map.updateChoropleth(countriesDataset, {reset: true});
+	gen_bubbles();
+}
+
+function gen_bubbles () {
 	var launchSites = Array();
 	var mostOccurrences = 0;
 
@@ -203,7 +224,6 @@ function gen_bubbles (map) {
 
 	// normalize bubble size
 	Object.keys(launchSites).forEach(function(site) {
-		// normalize
 		//var norm = launchSites[site].occurrences * 50 / mostOccurrences;
 		launchSites[site].radius = Math.round(Math.log(launchSites[site].occurrences))*5;
 	})
@@ -212,7 +232,7 @@ function gen_bubbles (map) {
 	map.bubbles(Object.values(launchSites), 
 	{
 		popupTemplate: function(geo, data) {
-			return '<div class="hoverinfo"> <b>Site name  </b>' + data.name + '<br> <b>Number of launches  </b>' + data.occurrences + ''
+			return '<div class="hoverinfo"><b>Site name  </b>' + data.name + '<br><b>Launches </b> ' + data.occurrences + ''
 		}
 	});
 }
@@ -258,13 +278,11 @@ function gen_timeline(){
 		.x(function(d) { console.log("In: " + d +"; Out: " + x(d)); return x(d); })
 		.y(function(d, i) { console.log(y(i+1)); return y(i+1); });*/
 
-		var area = d3.svg.area()
-		.interpolate("monotone")
-		.x(function (d) { return x(d); })
-		.y0(height)
-		.y1(function (d, i) { return y(i+1); });
-
-	//console.log(dates);
+	var area = d3.svg.area()
+	.interpolate("monotone")
+	.x(function (d) { return x(d); })
+	.y0(height)
+	.y1(function (d, i) { return y(i+1); });
 
 	x.domain(d3.extent(dates, function(d) { return d; }));
 	y.domain(d3.extent(dates, function(d, i) { return i+1; }));
@@ -312,7 +330,10 @@ function gen_timeline(){
 	.attr("y", -6)
 	.attr("height", height + 7);
 
-    // TODO: change this to implement brush snapping
+	context.selectAll(".extent")
+		.append("a")
+		.attr("class", "boxclose");
+
     function brushed() {
 		if (!d3.event.sourceEvent) return; // Only transition after input.
 	  	if (!brush.extent()) return; // Ignore empty selections.
@@ -340,11 +361,10 @@ function gen_timeline(){
 	  		}
 	  	});
 
-    		// TODO: change this to only update the chart instead of redrawing it
-    		if(workingDataset.length > 0){
-    			d3.select("#map").select("svg").remove();
-    			gen_map();
-    		}
+		// TODO: change this to only update the chart instead of redrawing it
+		if (workingDataset.length > 0) {
+			update_map();
+		}
 
 	  	// If empty when rounded, use floor & ceil instead.
 	  	if (d1[0] >= d1[1]) {	
@@ -352,11 +372,15 @@ function gen_timeline(){
 	  		d1[1] = d3.time.day.offset(d1[0]);
 	  	}
 
+	  	context.selectAll("a")//append("div")
+	  		//.html("<a class=\"boxclose\">X</a>")//.attr("transform","translate("+context.select(".extent").attr("x")+","+context.select(".extent").attr("y")+")");
+	  		.attr("x", context.select(".extent").attr("x"))
+	  		.attr("y", context.select(".extent").attr("y"));
   		//d3.select(this).transition().call(d3.event.target.move, d1.map(x));
   	}
-  }
+}
 
-  function gen_sunburst() {
+function gen_sunburst() {
   	var width = 640,
   	height = 500,
   	radius = Math.min(width, height) / 2;
@@ -379,11 +403,11 @@ function gen_timeline(){
 	    //.sort(null)   // sort(null) to ignore order
 	    .value(function(d) { return d.size; });
 
-	    var arc = d3.svg.arc()
-	    .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); })
-	    .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
-	    .innerRadius(function(d) { return Math.max(0, y(d.y)); })
-	    .outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
+    var arc = d3.svg.arc()
+    .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); })
+    .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
+    .innerRadius(function(d) { return Math.max(0, y(d.y)); })
+    .outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
 
 	// Keep track of the node that is currently being displayed as the root.
 	var usersJson = {};
@@ -446,38 +470,42 @@ function gen_timeline(){
 	.on("click", click)
 	.each(stash);
 
-	  // Define the div for the tooltip
-	  var div = d3.select("body").append("div")	
-	  .attr("class", "tooltip")				
-	  .style("opacity", 0);
+  	// Define the div for the tooltip
+  	var div = d3.select("body").append("div")	
+  		.attr("class", "hoverinfo tooltip")				
+  		.style("opacity", 0);
 
+	path.on("mouseover", function(d) {
+		if (typeof d.name === "undefined" || d.name === "") return;		
 
-	  path.on("mouseover", function(d) {
-	  	if (typeof d.name === "undefined" || d.name === "") return;		
-
-	  	div.transition()		
-	  	.duration(200)		
-	  	.style("opacity", .9);		
-	  })					
-	  .on("mouseout", function(d) {		
-	  	div.transition()		
-	  	.duration(500)		
-	  	.style("opacity", 0);
-	  })
-	  .on("mousemove", function(d) {
+		div.transition()		
+		.duration(200)		
+		.style("opacity", .9);		
+	})					
+	.on("mouseout", function(d) {		
+		div.transition()		
+		.duration(500)		
+		.style("opacity", 0);
+	})
+	.on("mousemove", function(d) {
 
 		if (typeof d.name === "undefined" || d.name === "") return;	
 
-			div.text(d.name + "\n")
-			.style("left", (d3.event.pageX - 34) + "px")
-			.style("top", (d3.event.pageY - 12) + "px");
+		div.html("")
+		.style("left", (d3.event.pageX - 34) + "px")
+		.style("top", (d3.event.pageY - 12) + "px");
 
-		if(typeof d.size === "undefined") return;
-			div.append("tspan")
-			.attr("dy", (d3.event.pageY - 12) + 12)
-			.attr("x", (d3.event.pageX - 34) + 12)
-			.text("Launches: " + d.size);
-	  });	
+		if (typeof d.size === "undefined"){
+			var sumSize = 0;
+			d.children.forEach(function(purpose) {
+				sumSize += purpose.size;
+			});
+
+			div.html("<b>Users</b> "+d.name+ "<br><b>Launches</b> " + sumSize);
+		} else {
+			div.html("<b>Purpose</b> " + d.name + "<br><b>Launches</b> " + d.size);
+		}
+	});	
 
 	  d3.select(self.frameElement).style("height", height + "px");
 
@@ -493,22 +521,21 @@ function gen_timeline(){
 		.each("end", function(e, i) {
 			if (typeof d.children === "undefined" && e.parent === d.parent) {
 
-				 // check if the animated element's data e lies within the visible angle span given in d
-				 if (e.x >= d.x && e.x < (d.x + d.dx)) {
+				// check if the animated element's data e lies within the visible angle span given in d
+				if (e.x >= d.x && e.x < (d.x + d.dx)) {
+					// get a selection of the associated text element
+					var arcText = d3.select(this.parentNode).select("text");
 
-			        // get a selection of the associated text element
-			        var arcText = d3.select(this.parentNode).select("text");
+					arcText.text(function(d) { return d.name; })
+					// fade in the text element and recalculate positions
+					arcText.transition().duration(750)
+					.attr("opacity", 1)
+					.attr("x", function(d) { return y(d.y) + 10; })
+					.attr("y", function(d) { return (d.y) + 10; })
+					.style("font-size","18px");
 
-			        arcText.text(function(d) { return d.name; })
-			        // fade in the text element and recalculate positions
-			        arcText.transition().duration(750)
-			        .attr("opacity", 1)
-			        .attr("x", function(d) { return y(d.y) + 10; })
-			        .attr("y", function(d) { return (d.y) + 10; })
-			        .style("font-size","18px");
-
-		          	arcText.append("tspan").transition().duration(750)
-		          	.attr("opacity", 1)
+					arcText.append("tspan").transition().duration(750)
+					.attr("opacity", 1)
 					.attr("dy", "1.4em") // offest by 1.2 em
 					.attr("x", function(d) { return y(d.y) + 12; })
 					.text(function(d) {return  "Launches: " + d.size;})
@@ -516,8 +543,6 @@ function gen_timeline(){
 				}	
 			}  
 		});
-
-
 	}
 
 	function computeTextRotation(d) {
@@ -540,17 +565,18 @@ function gen_timeline(){
 			return arc(b);
 		}
 		if (i == 0) {
-	   // If we are on the first arc, adjust the x domain to match the root node
-	   // at the current zoom level. (We only need to do this once.)
-	   var xd = d3.interpolate(x.domain(), [node.x, node.x + node.dx]);
-	   return function(t) {
-	   	x.domain(xd(t));
-	   	return tween(t);
-	   };
-	} else {
-		return tween;
+		   	// If we are on the first arc, adjust the x domain to match the root node
+		   	// at the current zoom level. (We only need to do this once.)
+		   	var xd = d3.interpolate(x.domain(), [node.x, node.x + node.dx]);
+	   		return function(t) {
+
+	   			x.domain(xd(t));
+	   			return tween(t);
+	   		};
+		} else {
+			return tween;
+		}
 	}
-}
 
 	// When zooming: interpolate the scales.
 	function arcTweenZoom(d) {

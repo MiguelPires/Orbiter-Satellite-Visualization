@@ -334,9 +334,9 @@ Fox-1A (AO-85),United States of America,AMSAT-NA,Civil,Communications/Technology
 BisonSat (Nwist Qwiqway),United States of America,Salish Kootenai College,Civil,Earth Observation/Technology Development,LEO,08-10-15,Cape Canaveral,28.3922;-80.6077,Delta 2
 PropCube-1 (PropCube Merryweather),United States of America,Naval Post-Graduate School,Military,Space Science,LEO,08-10-15,Cape Canaveral,28.3922;-80.6077,Delta 2
 PropCube-3 (PropCube Flora),United States of America,Naval Post-Graduate School,Military,Space Science,LEO,08-10-15,Cape Canaveral,28.3922;-80.6077,Delta 2
-SINOD D-1,United States of America,SRI International,Commercial,Technology Demonstration,LEO,08-10-15,Cape Canaveral,28.3922;-80.6077,Delta 2
-SINOD D-3,United States of America,SRI International,Commercial,Technology Demonstration,LEO,08-10-15,Cape Canaveral,28.3922;-80.6077,Delta 2
-LMRSTSat (Low Mass Radio Science Transponder Satellite),United States of America,NASA Jet Propulsion Laboratory,Government,Technology Demonstration,LEO,08-10-15,Cape Canaveral,28.3922;-80.6077,Delta 2
+SINOD D-1,United States of America,SRI International,Commercial,Technology Development,LEO,08-10-15,Cape Canaveral,28.3922;-80.6077,Delta 2
+SINOD D-3,United States of America,SRI International,Commercial,Technology Development,LEO,08-10-15,Cape Canaveral,28.3922;-80.6077,Delta 2
+LMRSTSat (Low Mass Radio Science Transponder Satellite),United States of America,NASA Jet Propulsion Laboratory,Government,Technology Development,LEO,08-10-15,Cape Canaveral,28.3922;-80.6077,Delta 2
 ARC-1 (Alaska Research Satellite-1),United States of America,University of Alaska-Fairbanks,Civil,Technology Development,LEO,08-10-15,Cape Canaveral,28.3922;-80.6077,Delta 2
 ParkinsonSat-1,United States of America,US Naval Academy,Civil,Technology Development,LEO,20-05-15,Cape Canaveral,28.3922;-80.6077,Delta 2
 Aerocube 8A,United States of America,Aerospace Corporation,Commercial,Technology Development,LEO,20-05-15,Cape Canaveral,28.3922;-80.6077,Delta 2
@@ -858,7 +858,7 @@ Ofeq 7,Israel,Ministry of Defense,Military,Earth Observation,LEO,10-06-07,Palmac
 Ofeq 9,Israel,Ministry of Defense,Military,Earth Observation,LEO,22-06-10,Palmachim Launch Complex ,31.897778;34.690556,Minotaur 1
 Ofeq 10,Israel,Ministry of Defense,Military,Earth Observation,LEO,09-04-14,Palmachim Launch Complex ,31.897778;34.690556,Minotaur 1
 SMOS (Soil Moisture and Ocean Salinity satellite),Austria/Belgium/Czech Republic/Denmark/Estonia/Finland/France/Germany/Greece/Hungary/Ireland/Italy/Luxembourg/Netherlands/Norway/Poland/Portugal/Romania/Spain/Sweden/Switzerland/United Kingdom/Canada,Centre National d'Etudes Spatiales (CNES)/European Space Agency,Government,Earth Observation,LEO,02-11-09,Plesetsk Cosmodrome,62.925556;40.577778,Minotaur 1
-Proba 2 (Project for On-Board Autonomy),Austria/Belgium/Czech Republic/Denmark/Estonia/Finland/France/Germany/Greece/Hungary/Ireland/Italy/Luxembourg/Netherlands/Norway/Poland/Portugal/Romania/Spain/Sweden/Switzerland/United Kingdom/Canada,European Space Agency (ESA),Government,Technology Demonstration,LEO,02-11-09,Plesetsk Cosmodrome,62.925556;40.577778,Minotaur 1
+Proba 2 (Project for On-Board Autonomy),Austria/Belgium/Czech Republic/Denmark/Estonia/Finland/France/Germany/Greece/Hungary/Ireland/Italy/Luxembourg/Netherlands/Norway/Poland/Portugal/Romania/Spain/Sweden/Switzerland/United Kingdom/Canada,European Space Agency (ESA),Government,Technology Development,LEO,02-11-09,Plesetsk Cosmodrome,62.925556;40.577778,Minotaur 1
 "Cubesat XI-IV (Oscar 57, CO-57)",Japan,"Department of Astronautics, University of Tokyo",Civil,Technology Development,LEO,30-06-03,Plesetsk Cosmodrome,62.925556;40.577778,Minotaur 1
 "Sinah-1 (Sina 1, ZS1)",Iran,Iranian Research Organization for Science and Technology (IROST),Government,Communications,LEO,27-10-05,Plesetsk Cosmodrome,62.925556;40.577778,Minotaur 4
 Strela 3 (Cosmos 2390),Russia,Ministry of Defense,Military,Communications,LEO,08-07-02,Plesetsk Cosmodrome,62.925556;40.577778,Minotaur 4
@@ -981,7 +981,7 @@ Resourcesat 2 (exactView-2),India/Canada,Indian Space Research Organization (ISR
 Youthsat,India,Indian Space Research Organization (ISRO),Government,Space Science,LEO,20-04-11,Satish Dhawan Space Center,13.7259;80.2266,Proton K
 GSAT-12,India,Indian Space Research Organization (ISRO),Government,Communications,GEO,15-07-11,Satish Dhawan Space Center,13.7259;80.2266,Proton K
 TeLEOS 1,Singapore,AgilSpace,Commercial,Earth Observation,LEO,16-12-15,Satish Dhawan Space Center,13.7259;80.2266,Proton K
-Proba 1 (Project for On-Board Autonomy),Austria/Belgium/Czech Republic/Denmark/Estonia/Finland/France/Germany/Greece/Hungary/Ireland/Italy/Luxembourg/Netherlands/Norway/Poland/Portugal/Romania/Spain/Sweden/Switzerland/United Kingdom/Canada,European Space Agency (ESA),Government,Technology Demonstration,LEO,22-10-01,Satish Dhawan Space Center,13.7259;80.2266,Proton K
+Proba 1 (Project for On-Board Autonomy),Austria/Belgium/Czech Republic/Denmark/Estonia/Finland/France/Germany/Greece/Hungary/Ireland/Italy/Luxembourg/Netherlands/Norway/Poland/Portugal/Romania/Spain/Sweden/Switzerland/United Kingdom/Canada,European Space Agency (ESA),Government,Technology Development,LEO,22-10-01,Satish Dhawan Space Center,13.7259;80.2266,Proton K
 Lemur-2 Chris (Lemur-2 F4),United States of America,Spire Global Inc.,Commercial,Earth Observation,LEO,28-09-15,Satish Dhawan Space Center,13.7259;80.2266,Proton K
 Lemur-2 Jeroen (Lemur-2 F3),United States of America,Spire Global Inc.,Commercial,Earth Observation,LEO,28-09-15,Satish Dhawan Space Center,13.7259;80.2266,Proton K
 Lemur-2 Joel (Lemur-2 F1),United States of America,Spire Global Inc.,Commercial,Earth Observation,LEO,28-09-15,Satish Dhawan Space Center,13.7259;80.2266,Proton K
@@ -1134,7 +1134,7 @@ XW-2C (CAS-3C),China,Chinese Amateur Satellite (CAMSAT),Civil,Communications,LEO
 XW-2D (CAS-3D),China,Chinese Amateur Satellite (CAMSAT),Civil,Communications,LEO,19-09-15,Taiyuan Launch Center,38.8490861;111.6084972,PSLV XL
 XW-2E (CAS-3E),China,Chinese Amateur Satellite (CAMSAT),Civil,Communications,LEO,19-09-15,Taiyuan Launch Center,38.8490861;111.6084972,PSLV XL
 XW-2F (CAS-3F),China,Chinese Amateur Satellite (CAMSAT),Civil,Communications,LEO,19-09-15,Taiyuan Launch Center,38.8490861;111.6084972,PSLV XL
-"NUDT Phonesat (National University of Defense Technology Phone Satellite, CAS-3I)",China,National University of Defense Technology/CAMSAT,Military,Technology Demonstration,LEO,19-09-15,Taiyuan Launch Center,38.8490861;111.6084972,PSLV XL
+"NUDT Phonesat (National University of Defense Technology Phone Satellite, CAS-3I)",China,National University of Defense Technology/CAMSAT,Military,Technology Development,LEO,19-09-15,Taiyuan Launch Center,38.8490861;111.6084972,PSLV XL
 "DCBB (Kaituo-1B, CAS-3G)",China,China Amateur Satellite - CAMSAT,Civil,Technology Development,LEO,19-09-15,Taiyuan Launch Center,38.8490861;111.6084972,PSLV XL
 "LilacSat-2 (CAS-3H, Zidingxiang-2)",China,Harbin Institute/China Amateur Satellite - CAMSAT,Civil,Technology Development,LEO,19-09-15,Taiyuan Launch Center,38.8490861;111.6084972,PSLV XL
 KJSY-1 (Kongjian Shiyan-1),China,Tsinghua University,Civil,Technology Development,LEO,19-09-15,Taiyuan Launch Center,38.8490861;111.6084972,PSLV XL
@@ -1317,7 +1317,7 @@ NOAA-15 (NOAA-K),United States of America,National Oceanographic and Atmospheric
 "DMSP 5D-2 F14 (Defense Meteorological Satellites Program, United States of America 131)",United States of America,DoD/NOAA,Military,Earth Observation,LEO,04-04-97,Vandenberg AFB,34.7420;-120.5724,Soyuz-ST
 "DMSP 5D-3 F15 (Defense Meteorological Satellites Program, United States of America 147)",United States of America,DoD/NOAA,Military,Earth Observation,LEO,12-12-99,Vandenberg AFB,34.7420;-120.5724,Soyuz-ST
 "DMSP 5D-3 F16 (Defense Meteorological Satellites Program, United States of America 172)",United States of America,DoD/NOAA,Military,Earth Observation,LEO,18-10-03,Vandenberg AFB,34.7420;-120.5724,Soyuz-ST
-Coriolis (Windsat),United States of America,US Air Force/ US Navy/NASA,Military,Earth/Space Science,LEO,06-01-03,Vandenberg AFB,34.7420;-120.5724,Soyuz-ST
+Coriolis (Windsat),United States of America,US Air Force/ US Navy/NASA,Military,Earth Science/Space Science,LEO,06-01-03,Vandenberg AFB,34.7420;-120.5724,Soyuz-ST
 SLDCOM-3 (Satellite Launch Dispenser Communications System) (United States of America 119),United States of America,National Reconnaissance Office (NRO),Military,Communications,Elliptical,12-05-96,Vandenberg AFB,34.7420;-120.5724,Soyuz-ST
 "Lacrosse/Onyx 3 (Lacrosse-3, United States of America 133)",United States of America,National Reconnaissance Office (NRO),Military,Earth Observation,LEO,24-10-97,Vandenberg AFB,34.7420;-120.5724,Soyuz-ST
 "Lacrosse/Onyx 4 (Lacrosse-4, United States of America 152)",United States of America,National Reconnaissance Office (NRO),Military,Earth Observation,LEO,17-08-00,Vandenberg AFB,34.7420;-120.5724,Soyuz-ST
