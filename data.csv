@@ -757,35 +757,35 @@ Sentinel 2A,Austria/Belgium/Czech Republic/Denmark/Estonia/Finland/France/German
 Proba V (Project for On-Board Autonomy),Austria/Belgium/Czech Republic/Denmark/Estonia/Finland/France/Germany/Greece/Hungary/Ireland/Italy/Luxembourg/Netherlands/Norway/Poland/Portugal/Romania/Spain/Sweden/Switzerland/United Kingdom/Canada,European Space Agency (ESA),Government,Earth Observation,LEO,07-05-13,Guiana Space Center,5.2079;-52.7724,Long March 3B
 KazEOSat-1 (Kazcosmos Earth Observation Satellite),Kazakhstan,Kazcosmos,Government,Earth Observation,LEO,30-04-14,Guiana Space Center,5.2079;-52.7724,Long March 3B
 VNREDSat 1A  (Vietnam Natural Resources Environment and Disaster monitoring small Satellite),Vietnam,Space Technology Institute-Vietnam Academy of Science and Technology (STI-VAST),Government,Earth Observation,LEO,07-05-13,Guiana Space Center,5.2079;-52.7724,Long March 3B
-"S-Cube (S3, Shootingstar Sensing Satellite)",Japan,"Planetary Exploration Research Center (PERC) of the Chiba Institute of Technology, Tohoku University",Civil,Technology Development,LEO,17-09-15,International Space Station,N/A,Long March 3B
-SpinSat (Special Purpose Inexpensive Satellite),United States of America,US Naval Research Laboratory,Military,Technology Development,LEO,28-11-14,International Space Station,N/A,Long March 3B
-Dove 1e-7  (0 Flock 1E-7 0B0E),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,14-07-15,International Space Station,N/A,Long March 3B
-Dove 1e-10  (0 Flock 1E-10 0B09),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,15-07-15,International Space Station,N/A,Long March 3C
-Dove 1e-11  (0 Flock 1E-11 0B1E),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,15-07-15,International Space Station,N/A,Long March 3C
-Dove 1e-12  (0 Flock 1E-12 0B0A),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,15-07-15,International Space Station,N/A,Long March 3C
-Dove 1e-6  (0 Flock 1E-6 0B0B),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,15-07-15,International Space Station,N/A,Long March 3C
-Dove 1e-13  (0 Flock 1E-13 0C07),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,16-07-15,International Space Station,N/A,Long March 3C
-Dove 1e-14  (0 Flock 1E-14 0B0F),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,16-07-15,International Space Station,N/A,Long March 3C
-Dove 2b-1 (0 Flock 2B-1 0C70),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,06-10-15,International Space Station,N/A,Long March 3C
-Dove 2b-2 (0 Flock 2B-2 0C18),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,06-10-15,International Space Station,N/A,Long March 3C
-Dove 2b-3 (0 Flock 2B-3 0C53),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,06-10-15,International Space Station,N/A,Long March 3C
-Dove 2b-4 (0 Flock 2B-4 0C72),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,06-10-15,International Space Station,N/A,Long March 3C
-Dove 2b-5 (0 Flock 2B-5 0C73),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,06-10-15,International Space Station,N/A,Long March 4B
-Dove 2b-6 (0 Flock 2B-6 0C69),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,06-10-15,International Space Station,N/A,Long March 4B
-Dove 2b-7 (0 Flock 2B-7 0C66),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,06-10-15,International Space Station,N/A,Long March 4B
-Dove 2b-10 (0 Flock 2B-10 0C64),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,07-10-15,International Space Station,N/A,Long March 4B
-Dove 2b-13 (0 Flock 2B-13 0C74),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,07-10-15,International Space Station,N/A,Long March 4B
-Dove 2b-14 (0 Flock 2B-14 0C47),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,07-10-15,International Space Station,N/A,Long March 4B
-Dove 2b-9 (0 Flock 2B-9 0C68),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,07-10-15,International Space Station,N/A,Long March 4B
-Dove 2e-1 (0 Flock 2E-1 0C37),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,17-05-16,International Space Station,N/A,Long March 4B
-Dove 2e-2 (0 Flock 2E-2 0C78),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,17-05-16,International Space Station,N/A,Long March 4B
-Dove 2e-3 (0 Flock 2E-3 0C60),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,17-05-16,International Space Station,N/A,Long March 4B
-Dove 2e-4 (0 Flock 2E-4 0C41),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,17-05-16,International Space Station,N/A,Long March 4B
-Dove 2ep-1 (0 Flock 2EP-1 0D05),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,17-05-16,International Space Station,N/A,Long March 4B
-Dove 2ep-2 (0 Flock 2EP-2 0C1B),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,17-05-16,International Space Station,N/A,Long March 4B
-Dove 2ep-3 (0 Flock 2EP-3 0D06),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,17-05-16,International Space Station,N/A,Long March 4B
-Dove 2ep-4 (0 Flock 2EP-4 0C22),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,17-05-16,International Space Station,N/A,Long March 4B
-GOMX-3,Denmark,GomSpace ApS,Commercial,Technology Development,LEO,05-10-15,International Space Station,N/A,Long March 4B
+"S-Cube (S3, Shootingstar Sensing Satellite)",Japan,"Planetary Exploration Research Center (PERC) of the Chiba Institute of Technology, Tohoku University",Civil,Technology Development,LEO,17-09-15,International Space Station,0.464749;-22.875285,Long March 3B
+SpinSat (Special Purpose Inexpensive Satellite),United States of America,US Naval Research Laboratory,Military,Technology Development,LEO,28-11-14,International Space Station,0.464749;-22.875285,Long March 3B
+Dove 1e-7  (0 Flock 1E-7 0B0E),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,14-07-15,International Space Station,0.464749;-22.875285,Long March 3B
+Dove 1e-10  (0 Flock 1E-10 0B09),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,15-07-15,International Space Station,0.464749;-22.875285,Long March 3C
+Dove 1e-11  (0 Flock 1E-11 0B1E),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,15-07-15,International Space Station,0.464749;-22.875285,Long March 3C
+Dove 1e-12  (0 Flock 1E-12 0B0A),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,15-07-15,International Space Station,0.464749;-22.875285,Long March 3C
+Dove 1e-6  (0 Flock 1E-6 0B0B),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,15-07-15,International Space Station,0.464749;-22.875285,Long March 3C
+Dove 1e-13  (0 Flock 1E-13 0C07),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,16-07-15,International Space Station,0.464749;-22.875285,Long March 3C
+Dove 1e-14  (0 Flock 1E-14 0B0F),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,16-07-15,International Space Station,0.464749;-22.875285,Long March 3C
+Dove 2b-1 (0 Flock 2B-1 0C70),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,06-10-15,International Space Station,0.464749;-22.875285,Long March 3C
+Dove 2b-2 (0 Flock 2B-2 0C18),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,06-10-15,International Space Station,0.464749;-22.875285,Long March 3C
+Dove 2b-3 (0 Flock 2B-3 0C53),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,06-10-15,International Space Station,0.464749;-22.875285,Long March 3C
+Dove 2b-4 (0 Flock 2B-4 0C72),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,06-10-15,International Space Station,0.464749;-22.875285,Long March 3C
+Dove 2b-5 (0 Flock 2B-5 0C73),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,06-10-15,International Space Station,0.464749;-22.875285,Long March 4B
+Dove 2b-6 (0 Flock 2B-6 0C69),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,06-10-15,International Space Station,0.464749;-22.875285,Long March 4B
+Dove 2b-7 (0 Flock 2B-7 0C66),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,06-10-15,International Space Station,0.464749;-22.875285,Long March 4B
+Dove 2b-10 (0 Flock 2B-10 0C64),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,07-10-15,International Space Station,0.464749;-22.875285,Long March 4B
+Dove 2b-13 (0 Flock 2B-13 0C74),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,07-10-15,International Space Station,0.464749;-22.875285,Long March 4B
+Dove 2b-14 (0 Flock 2B-14 0C47),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,07-10-15,International Space Station,0.464749;-22.875285,Long March 4B
+Dove 2b-9 (0 Flock 2B-9 0C68),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,07-10-15,International Space Station,0.464749;-22.875285,Long March 4B
+Dove 2e-1 (0 Flock 2E-1 0C37),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,17-05-16,International Space Station,0.464749;-22.875285,Long March 4B
+Dove 2e-2 (0 Flock 2E-2 0C78),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,17-05-16,International Space Station,0.464749;-22.875285,Long March 4B
+Dove 2e-3 (0 Flock 2E-3 0C60),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,17-05-16,International Space Station,0.464749;-22.875285,Long March 4B
+Dove 2e-4 (0 Flock 2E-4 0C41),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,17-05-16,International Space Station,0.464749;-22.875285,Long March 4B
+Dove 2ep-1 (0 Flock 2EP-1 0D05),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,17-05-16,International Space Station,0.464749;-22.875285,Long March 4B
+Dove 2ep-2 (0 Flock 2EP-2 0C1B),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,17-05-16,International Space Station,0.464749;-22.875285,Long March 4B
+Dove 2ep-3 (0 Flock 2EP-3 0D06),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,17-05-16,International Space Station,0.464749;-22.875285,Long March 4B
+Dove 2ep-4 (0 Flock 2EP-4 0C22),United States of America,"Planet Labs, Inc.",Commercial,Earth Observation,LEO,17-05-16,International Space Station,0.464749;-22.875285,Long March 4B
+GOMX-3,Denmark,GomSpace ApS,Commercial,Technology Development,LEO,05-10-15,International Space Station,0.464749;-22.875285,Long March 4B
 Cubebug 1  (Capitán Beto),Argentina,"Argentinian Ministry of Science, Technology and Productive Innovation/Radio Club Bariloche",Civil,Technology Development,LEO,26-04-13,Jiuquan Satellite Launch Center,40.9675;100.278611,Long March 4B
 Kuaizhou-2 (KZ-2),China,National Academy of Sciences,Government,Earth Observation,LEO,21-11-14,Jiuquan Satellite Launch Center,40.9675;100.278611,Long March 4B
 Tianwang 1B (TW-1B; NJUST-2),China,Nanjing University of Aeronautics and Astronautics,Civil,Technology Development,LEO,24-09-15,Jiuquan Satellite Launch Center,40.9675;100.278611,Long March 4B

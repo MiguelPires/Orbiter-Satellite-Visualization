@@ -20,17 +20,18 @@ d3.csv("data.csv", function (data) {
 	gen_bars();
 	gen_map();
 	gen_timeline();
-//	test();
-gen_sunburst();
+	gen_sunburst();
 });
 
 function gen_bars() {
-	var w = 400;
-	var h = 300;
+	var w = parseInt(d3.select("#bar_chart").style("width"));
+	var h = parseInt(d3.select("#bar_chart").style("height"));
+
 	var numberOfBars = 6;
 	var svg = d3.select("#bar_chart")
-	.append("svg")
-	.attr("width",w)
+	.append("svg");
+
+	svg.attr("width",w)
 	.attr("height",h);
 
 	var launchVehicles = new Array();
@@ -78,8 +79,11 @@ function gen_bars() {
 	svg.selectAll("rect")
 	.data(sortedVehicleCount.slice(0, numberOfBars-1))
 	.enter().append("rect")
-	.attr("width",Math.floor((w-padding*3)/numberOfBars)-1)
+	.attr("width", function (d) {
+		console.log('width' + (Math.floor((w-padding*3)/numberOfBars)-1) );
+		return Math.floor((w-padding*3)/numberOfBars)-1;})
 	.attr("height",function(d) {
+		console.log('height' + (h-padding-hscale(d[1])) );
 		return h-padding-hscale(d[1]);
 	})
 	.attr("fill","purple")
@@ -226,7 +230,7 @@ function gen_bubbles () {
 	Object.keys(launchSites).forEach(function(site) {
 		//var norm = launchSites[site].occurrences * 50 / mostOccurrences;
 		launchSites[site].radius = Math.round(Math.log(launchSites[site].occurrences))*5;
-	})
+	});
 
 	// draw bubbles
 	map.bubbles(Object.values(launchSites), 
@@ -304,7 +308,6 @@ function gen_timeline(){
 	.style("text-anchor", "end")
 	.text("Launches");
 
-
 	g.append("path")
 	.datum(dates)
 	.attr("class", "area")
@@ -361,9 +364,9 @@ function gen_timeline(){
 	  		}
 	  	});
 
-		// TODO: change this to only update the chart instead of redrawing it
 		if (workingDataset.length > 0) {
 			update_map();
+			gen_sunburst();
 		}
 
 	  	// If empty when rounded, use floor & ceil instead.
@@ -381,8 +384,8 @@ function gen_timeline(){
 }
 
 function gen_sunburst() {
-  	var width = 640,
-  	height = 500,
+  	var width = 400,
+  	height = 300,
   	radius = Math.min(width, height) / 2;
 
   	var x = d3.scale.linear()
@@ -393,15 +396,16 @@ function gen_sunburst() {
 
   	var color = d3.scale.category20c();
 
-  	var svg = d3.select("body").append("svg")
+  	var svg = d3.select("#sunburst")
+  	.attr("id", "sunburst")
   	.attr("width", width)
   	.attr("height", height)
-  	.append("g")
+  	.select("g")
   	.attr("transform", "translate(" + width / 2 + "," + (height / 2 + 10) + ")");
 
   	var partition = d3.layout.partition()
-	    //.sort(null)   // sort(null) to ignore order
-	    .value(function(d) { return d.size; });
+    //.sort(null)   // sort(null) to ignore order
+    .value(function(d) { return d.size; });
 
     var arc = d3.svg.arc()
     .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); })
@@ -409,74 +413,51 @@ function gen_sunburst() {
     .innerRadius(function(d) { return Math.max(0, y(d.y)); })
     .outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
 
-	// Keep track of the node that is currently being displayed as the root.
-	var usersJson = {};
-	// Use this to write stuff in the middle
-	usersJson.name = "";
-	usersJson.children = [];
-	workingDataset.forEach(function(d) {
-		var userText = d["Users"];
-		var users = userText.split("/");
-		var purposeText = d["Purpose"];
-		var purposes = purposeText.split("/");
-		
-		users.forEach(function(user){
-			var foundUser = false;
-			for(i = 0; i < usersJson.children.length; ++i) {
-				if (usersJson.children[i].name === user) {
-					foundUser = true;
-					
-					purposes.forEach( function(purpose) {
-						var foundPurpose = false;
-						for(j = 0; j < usersJson.children[i].children.length; ++j) {
-							if (usersJson.children[i].children[j].name === purpose) {
-								usersJson.children[i].children[j].size++;
-								
-								foundPurpose = true;
-							}
-						}
+	var node = createJsonDataset();	
 
-						if (!foundPurpose) {
-							usersJson.children[i].children.push({name: purpose, size: 1});
-						}
-					});
-				}
-			}
+	var g =  svg.selectAll("g")
+		.data(partition.nodes(node));
 
-			if (!foundUser) {
-				usersJson.children.push({name: user, children : []});
-				
-				for(var j = 0; j < usersJson.children.length; j++){
-					if (usersJson.children[j].name === user){
-						purposes.forEach( function(purpose) {
-							usersJson.children[j].children.push({name: purpose, size: 1});
-						});	
-					}
-				}
-			}
-		});
-	});
+	g.exit().remove();
+	g.selectAll("path").remove();
+	g.selectAll("text").remove();
 
-	var node = usersJson;	
-
-	var g = svg.selectAll("g")
-	.data(partition.nodes(node))
-	.enter().append("g");
+	g.enter().append("g");
 
 	var path = g
 	.append("path")
 	.attr("d", arc)
-	.style("fill", function(d) { /*console.log((d.children ? d : d).name); */return color((d.children ? d : d).name); })
+	.style("fill", function(d) { return color(d.name); })
 	.on("click", click)
 	.each(stash);
 
-  	// Define the div for the tooltip
-  	var div = d3.select("body").append("div")	
-  		.attr("class", "hoverinfo tooltip")				
-  		.style("opacity", 0);
+    d3.selectAll("#sunburst").on("change", function change() {
+	    var value = this.value === "count"
+	        ? function() { return 1; }
+	        : function(d) { return d.size; };
+
+	    path
+	        .data(partition.value(value).nodes)
+	    	.transition()
+	        .duration(1000)
+	        .attrTween("d", arcTweenData);
+  	});
+
+	var div;
+    if (d3.select("#tooltip").empty()) {
+    	console.log("hi");
+	    	// Define the div for the tooltip
+	  	div = d3.select("body").append("div")
+	  		.attr("id", "tooltip")
+	  		.attr("class", "hoverinfo tooltip")				
+	  		.style("opacity", 0);
+    }else {
+    	div = d3.select("#tooltip");
+    }
+  	
 
 	path.on("mouseover", function(d) {
-		if (typeof d.name === "undefined" || d.name === "") return;		
+		if (typeof d.name === "undefined" || d.name === "") return;
 
 		div.transition()		
 		.duration(200)		
@@ -564,6 +545,7 @@ function gen_sunburst() {
 			a.dx0 = b.dx;
 			return arc(b);
 		}
+
 		if (i == 0) {
 		   	// If we are on the first arc, adjust the x domain to match the root node
 		   	// at the current zoom level. (We only need to do this once.)
@@ -591,170 +573,55 @@ function gen_sunburst() {
 	}
 }
 
-function test(){
-
-	var dates = new Array();
+function createJsonDataset() {
+	// Keep track of the node that is currently being displayed as the root.
+	var usersJson = {};
+	// Use this to write stuff in the middle
+	usersJson.name = "";
+	usersJson.children = [];
 	workingDataset.forEach(function(d) {
-		dateText = d["Date of Launch"];
-		dateParts = dateText.split("-");
+		var userText = d["Users"];
+		var users = userText.split("/");
+		var purposeText = d["Purpose"];
+		var purposes = purposeText.split("/");
 		
-		var year = dateParts[2] > 20 ? "19"+dateParts[2] : "20"+dateParts[2];
-		var date = new Date(year, dateParts[1], dateParts[0]);
-		dates.push(date);
+		users.forEach(function(user){
+			var foundUser = false;
+			for(i = 0; i < usersJson.children.length; ++i) {
+				if (usersJson.children[i].name === user) {
+					foundUser = true;
+					
+					purposes.forEach( function(purpose) {
+						var foundPurpose = false;
+						for(j = 0; j < usersJson.children[i].children.length; ++j) {
+							if (usersJson.children[i].children[j].name === purpose) {
+								usersJson.children[i].children[j].size++;
+								
+								foundPurpose = true;
+							}
+						}
+
+						if (!foundPurpose) {
+							usersJson.children[i].children.push({name: purpose, size: 1});
+						}
+					});
+				}
+			}
+
+			if (!foundUser) {
+				usersJson.children.push({name: user, children : []});
+				
+				for(var j = 0; j < usersJson.children.length; j++){
+					if (usersJson.children[j].name === user){
+						purposes.forEach( function(purpose) {
+							usersJson.children[j].children.push({name: purpose, size: 1});
+						});	
+					}
+				}
+			}
+		});
 	});
-
-	dates.sort(function(a, b){
-		return a - b;
-	});
-
-	
-	var margin = { top: 10, right: 10, bottom: 100, left: 40 },
-	margin2 = { top: 430, right: 10, bottom: 20, left: 40 },
-	width = 960 - margin.left - margin.right,
-	height = 500 - margin.top - margin.bottom,
-	height2 = 500 - margin2.top - margin2.bottom;
-
-	var parseDate = d3.time.format("%b %Y").parse;
-
-	var x = d3.time.scale().range([0, width]),
-	x2 = d3.time.scale().range([0, width]),
-	y = d3.scale.linear().range([height, 0]),
-	y2 = d3.scale.linear().range([height2, 0]);
-
-	var xAxis = d3.svg.axis().scale(x).orient("bottom"),
-	xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
-	yAxis = d3.svg.axis().scale(y).orient("left");
-
-	var brush = d3.svg.brush()
-	.x(x2)
-	.on("brush", brushed);
-
-	var area = d3.svg.area()
-	.interpolate("monotone")
-	.x(function (d) { return x(d); })
-	.y0(height)
-	.y1(function (d, i) { return y(i+1); });
-
-	var area2 = d3.svg.area()
-	.interpolate("monotone")
-	.x(function (d) { return x2(d); })
-	.y0(height2)
-	.y1(function (d, i) { return y2(i+1); });
-
-
-
-  // make some buttons to drive our zoom
-  d3.select("body").append("div")
-  .attr("id","btnDiv")
-  .style('font-size','75%')
-  .style("width","250px")
-  .style("position","absolute")
-  .style("left","5%")
-  .style("top","200px")
-
-  d3.select("#btnDiv")[0][0].innerHTML = [
-  '<h3>Buttons To Drive Our Zoom</h3>',
-  '<p>push a button and watch the brush react</p>',
-  '<ul>',
-  '<li>note: deliberately slowed down so each step can be seen and demonstrate how to inject transition</li>',
-  '<li>also, play with the brush after drawn to see how it acts as if we drew with our mouse</li>',
-  '</ul>'
-  ].join('\n')
-  
-  var btns = d3.select("#btnDiv").selectAll("button").data([2001, 2002, 2003, 2004])
-
-  btns = btns.enter().append("button").style("display","inline-block")
-
-  // fill the buttons with the year from the data assigned to them
-  btns.each(function (d) {
-  	this.innerText = d;
-  })
-
-  btns.on("click", drawBrush);
-
-  function drawBrush() {
-    // our year will this.innerText
-    console.log(this.innerText)
-
-    // define our brush extent to be begin and end of the year
-    brush.extent([new Date(this.innerText + '-01-01'), new Date(this.innerText + '-12-31')])
-
-    // now draw the brush to match our extent
-    // use transition to slow it down so we can see what is happening
-    // remove transition so just d3.select(".brush") to just draw
-    brush(d3.select(".brush").transition());
-
-    // now fire the brushstart, brushmove, and brushend events
-    // remove transition so just d3.select(".brush") to just draw
-    brush.event(d3.select(".brush").transition().delay(1000))
-}
-
-var svg = d3.select("body").append("svg")
-.attr("width", width + margin.left + margin.right)
-.attr("height", height + margin.top + margin.bottom);
-
-svg.append("defs").append("clipPath")
-.attr("id", "clip")
-.append("rect")
-.attr("width", width)
-.attr("height", height);
-
-var focus = svg.append("g")
-.attr("class", "focus")
-.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-var context = svg.append("g")
-.attr("class", "context")
-.attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
-
-
-x.domain(d3.extent(dates.map(function (d) { return d; })));
-y.domain([0, d3.max(dates.map(function (d ,i) { return i+1; }))]);
-x2.domain(x.domain());
-y2.domain(y.domain());
-
-focus.append("path")
-.datum(dates)
-.attr("class", "area")
-.attr("d", area);
-
-focus.append("g")
-.attr("class", "x axis")
-.attr("transform", "translate(0," + height + ")")
-.call(xAxis);
-
-focus.append("g")
-.attr("class", "y axis")
-.call(yAxis);
-
-context.append("path")
-.datum(dates)
-.attr("class", "area")
-.attr("d", area2);
-
-context.append("g")
-.attr("class", "x axis")
-.attr("transform", "translate(0," + height2 + ")")
-.call(xAxis2);
-
-context.append("g")
-.attr("class", "x brush")
-.call(brush)
-.selectAll("rect")
-.attr("y", -6)
-.attr("height", height2 + 7);
-
-function brushed() {
-	x.domain(brush.empty() ? x2.domain() : brush.extent());
-	focus.select(".area").attr("d", area);
-	focus.select(".x.axis").call(xAxis);
-}
-
-function type(d) {
-	d.date = parseDate(d.date);
-	d.price = +d.price;
-	return d;
-}
+	return usersJson;
 }
 
 // sorts an associative array in decreasing order of value

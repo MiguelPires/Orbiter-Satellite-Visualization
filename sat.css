@@ -1,8 +1,20 @@
+body {
+    margin:0;     /* This is used to reset any browser-default margins */
+    height:100vh; /* This is needed to overcome a Chrome bug. */
+    width:100vw;  /* As above. */
+}
+
 h1 { 
    font-size: 18pt;
    font-family: calibri, arial, sans serif;
+   margin: 5px;
 }
 
+.centered {
+    display: table;
+  margin-right: auto;
+  margin-left: auto;
+}
 
 .axis path, .axis line {
     fill: none;
