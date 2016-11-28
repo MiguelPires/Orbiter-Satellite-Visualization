@@ -1,17 +1,22 @@
 var dataset;
 var workingDataset = new Array();
-var eventDispatcher = d3.dispatch("launchVehicleEnter");
+var eventDispatcherIn = d3.dispatch("launchVehicleEnter");
+var eventDispatcherOut = d3.dispatch("launchVehicleExit");
+
 var selectedBar, selectedCircle;
 var map;
 
-eventDispatcher.on("launchVehicleEnter", function(lauchVehicle){
-	if (selectedBar != null) {
-		selectedBar.attr("fill", "purple");
-	}
-
+eventDispatcherIn.on("launchVehicleEnter", function(lauchVehicle){
 	selectedBar = d3.select("rect[title=\'"+lauchVehicle[0]+"\']");
-	selectedBar.attr("fill", "red");
+	selectedBar.attr("fill", "#0642a3"); // same value as top range in map's saturation
 });
+
+eventDispatcherOut.on("launchVehicleExit", function(lauchVehicle){
+	if (selectedBar != null) {
+		selectedBar.attr("fill", "steelblue");
+	}
+});
+
 
 d3.csv("data.csv", function (data) {
 	dataset = data;
@@ -44,8 +49,8 @@ function gen_bars() {
 	// sorts the array by decreasing order of value	
 	sortedVehicleCount = sortAssociativeArray(vehicleCount);
 
-	var padding = 30;
-	var bar_w = 10;
+	var padding = 35;
+	var bar_w = -10;
 
 	var hscale = d3.scale.linear()
 	//the maximum number is increased in 25 to allow some breathing room
@@ -57,7 +62,7 @@ function gen_bars() {
 	.range([padding,w-padding]);
 
 	var yaxis = d3.svg.axis().orient("left")	
-	.scale(hscale);
+	.scale(hscale).ticks(4);
 
 	var xaxis = d3.svg.axis().orient("bottom")
 	.scale(d3.scale.linear()
@@ -76,17 +81,21 @@ function gen_bars() {
 	.attr("transform","translate(0," + (h-padding) + ")")
 	.call(xaxis);
 
+	// Define 'div' for tooltips
+	var div = d3.select("body")
+	.append("div")  // declare the tooltip div 
+	.attr("class", "hoverinfo tooltip")              // apply the 'tooltip' class
+	.style("opacity", 0);                  // set the opacity to nil
+
 	svg.selectAll("rect")
 	.data(sortedVehicleCount.slice(0, numberOfBars-1))
 	.enter().append("rect")
 	.attr("width", function (d) {
-		console.log('width' + (Math.floor((w-padding*3)/numberOfBars)-1) );
 		return Math.floor((w-padding*3)/numberOfBars)-1;})
 	.attr("height",function(d) {
-		console.log('height' + (h-padding-hscale(d[1])) );
 		return h-padding-hscale(d[1]);
 	})
-	.attr("fill","purple")
+	.attr("fill","steelblue")
 	.attr("x",function(d, i) {
 		return xscale(i);
 	})
@@ -95,7 +104,25 @@ function gen_bars() {
 	})
 	.attr("title", function(d) {return d[0];})
 	.on("mouseover", function(d) {
-		eventDispatcher.launchVehicleEnter(d, d);
+		 div.transition()
+				.duration(500)	
+				.style("opacity", 0);
+
+		div.transition()
+			.duration(200)	
+			.style("opacity", .9);	
+
+		div.html('<b>Vehicle </b>'+d[0]+'<br><b>Launches </b> '+d[1])	 
+			.style("left", (d3.event.pageX) + "px")			 
+			.style("top", (d3.event.pageY - 28) + "px");
+	
+		eventDispatcherIn.launchVehicleEnter(d, d);
+	}).on("mouseout", function(d) {
+		div.transition()		
+		.duration(500)		
+		.style("opacity", 0);
+		
+		eventDispatcherOut.launchVehicleExit(d, d);
 	});
 }
 
@@ -128,7 +155,38 @@ function gen_map() {
 		height: null, //if not null, datamaps will grab the height of 'element'
 		width: null, //if not null, datamaps will grab the width of 'element'
 		responsive: false, //if true, call `resize()` on the map object when it should adjust it's size
-		done: function() {}, //callback when the map is done drawing
+		done: function(geography) {
+            geography.svg.selectAll('.datamaps-subunit').on('click', function(geography) {
+	            workingDataset = dataset.filter( function(row) {
+
+		  			console.log('country: ' + geography.properties.name + " -> " + countryNamePairs[geography.properties.name]);
+		  		//	console.log('row: ' + row["Country of Owner"]);
+		  			
+		  			countries = row["Country of Owner"].split(/[/]+/);
+
+					for (i = 0; i < countries.length; ++i) {
+						if (countries[i] === countryNamePairs[geography.properties.name])
+							return true;
+					}
+
+					return false;
+	  			});
+
+	            // this filter the collaborating countries so that only the 
+	            // clicked country appears selected in the map
+
+	           /* workingDataset.forEach(function(row) {
+	            	console.log(row["Country of Owner"]);
+	            	row["Country of Owner"] = countryNamePairs[geography.properties.name];
+	            	console.log(row["Country of Owner"]);
+	            });*/
+
+				if (workingDataset.length > 0) {
+					gen_sunburst();
+					update_map();
+				}
+            });
+        }, //callback when the map is done drawing
 		fills: {
 		  defaultFill: 'gray' //the keys in this object map to the "fillKey" of [data] or [bubbles]
 		},
@@ -139,7 +197,10 @@ function gen_map() {
 			borderOpacity: 1,
 			borderColor: '#FDFDFD',
 			popupTemplate: function(geography, data) { //this function should just return a string
-				return '<div class="hoverinfo"><strong>' + geography.properties.name + '</strong></div>';
+				if (data != null && data != undefined && data.value != undefined)
+					return '<div class="hoverinfo"><b>Country  </b>' + geography.properties.name + '<br><b>Launches </b> ' + data.value + '';
+				else
+					return '<div class="hoverinfo"><b>Country  </b>' + geography.properties.name + '<br><b>Launches </b> 0';
 			},
 			popupOnHover: true, //disable the popup while hovering
 			highlightOnHover: true,
@@ -155,7 +216,7 @@ function gen_map() {
 			popupOnHover: true,
 			radius: null,
 			popupTemplate: function(geography, data) {
-				return '<div class="hoverinfo"><strong>' + data.name + '</strong></div>';
+				return '<div class="hoverinfo"><b>Site name  </b>' + data.name + '<br><b>Launches </b> ' + data.occurrences + ''
 			},
 			fillOpacity: 0.75,
 			animate: true,
@@ -183,23 +244,29 @@ function gen_map() {
 }
 
 function update_map(){
-	workingDataset.forEach(function(d){
-		countries.push(d["Country of Owner"]);
-	});
-	countryCount = countryOccurrence(countries);
-	sortedCountryCount = sortAssociativeArray(countryCount);
-
-	var paletteScale = d3.scale.linear()
-		.domain([0,sortedCountryCount[0][1]])
-		.range(["#95b7ed","#0642a3"]); // blue range
-
 	var countriesDataset = {};
-	Object.keys(countryCount).forEach(function(country){
-		var countryValue = countryCount[country];
-		code = countryCodePairs[country];
-		countriesDataset[code] = { value : countryValue, fillColor: paletteScale(countryValue)};
-	});
 
+	if (workingDataset.length > 0) {
+		countries = [];
+		workingDataset.forEach(function(d){
+			countries.push(d["Country of Owner"]);
+		});
+
+		countryCount = countryOccurrence(countries);
+		sortedCountryCount = sortAssociativeArray(countryCount);
+
+
+		var paletteScale = d3.scale.linear()
+			.domain([0,sortedCountryCount[0][1]])
+			.range(["#95b7ed","#0642a3"]); // blue range
+
+		Object.keys(countryCount).forEach(function(country){
+			var countryValue = countryCount[country];
+			code = countryCodePairs[country];
+			countriesDataset[code] = { value : countryValue, fillColor: paletteScale(countryValue)};
+		});					
+	} 
+	
 	map.updateChoropleth(countriesDataset, {reset: true});
 	gen_bubbles();
 }
@@ -233,17 +300,12 @@ function gen_bubbles () {
 	});
 
 	// draw bubbles
-	map.bubbles(Object.values(launchSites), 
-	{
-		popupTemplate: function(geo, data) {
-			return '<div class="hoverinfo"><b>Site name  </b>' + data.name + '<br><b>Launches </b> ' + data.occurrences + ''
-		}
-	});
+	map.bubbles(Object.values(launchSites));
 }
 
 function gen_timeline(){
 	var w = d3.select("#map").select("svg").attr("width"); 
-	var h = 100;
+	var h = 200;
 
 	var dates = new Array();
 	workingDataset.forEach(function(d) {
@@ -348,8 +410,6 @@ function gen_timeline(){
 	  	var startYear = brush.extent()[0].getFullYear();
 	  	var endYear = brush.extent()[1].getFullYear();
 
-	  	var dates = new Array();
-
 	  	workingDataset = dataset.filter( function(row) {
 	  		dateText = row["Date of Launch"];
 	  		dateParts = dateText.split("-");
@@ -364,10 +424,8 @@ function gen_timeline(){
 	  		}
 	  	});
 
-		if (workingDataset.length > 0) {
-			update_map();
-			gen_sunburst();
-		}
+		update_map();
+		gen_sunburst();
 
 	  	// If empty when rounded, use floor & ceil instead.
 	  	if (d1[0] >= d1[1]) {	
@@ -384,8 +442,8 @@ function gen_timeline(){
 }
 
 function gen_sunburst() {
-  	var width = 400,
-  	height = 300,
+  	var width = d3.select("#container_sunburst").style("width").split("px")[0],
+  	height = d3.select("#container_sunburst").style("height").split("px")[0],
   	radius = Math.min(width, height) / 2;
 
   	var x = d3.scale.linear()
@@ -401,7 +459,7 @@ function gen_sunburst() {
   	.attr("width", width)
   	.attr("height", height)
   	.select("g")
-  	.attr("transform", "translate(" + width / 2 + "," + (height / 2 + 10) + ")");
+  	.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
   	var partition = d3.layout.partition()
     //.sort(null)   // sort(null) to ignore order
@@ -445,13 +503,12 @@ function gen_sunburst() {
 
 	var div;
     if (d3.select("#tooltip").empty()) {
-    	console.log("hi");
 	    	// Define the div for the tooltip
 	  	div = d3.select("body").append("div")
 	  		.attr("id", "tooltip")
 	  		.attr("class", "hoverinfo tooltip")				
 	  		.style("opacity", 0);
-    }else {
+    } else {
     	div = d3.select("#tooltip");
     }
   	
@@ -524,6 +581,58 @@ function gen_sunburst() {
 				}	
 			}  
 		});
+
+
+		var datasetInUse;
+		if (typeof d.name === "undefined" || d.name === ""){
+			datasetInUse = dataset;
+  		}else {
+  			datasetInUse = workingDataset;
+  		}
+		
+		workingDataset = datasetInUse.filter( function(row) {
+	  		if (typeof d.name === "undefined" || d.name === ""){
+	  			return true; //if center is on center, reset
+	  		}
+
+			if (typeof d.size === "undefined"){
+				var users = row["Users"].split("/");
+				for (i = 0; i < users.length; ++i) {
+					if (users[i] === d.name)
+						return true;
+				}
+
+				return false;
+			} else {
+				var foundIt = false;
+				var users = row["Users"].split("/");
+				for (i = 0; i < users.length; ++i) {
+					if (users[i] === d.parent.name) {
+						foundIt = true;
+						break;
+					}
+				}
+
+				if (!foundIt)
+					return false;
+
+				var purposes = row["Purpose"].split("/");
+				for (i = 0; i < purposes.length; ++i) {
+					if (purposes[i] === d.name)
+						return true;
+				}
+
+				return false;
+			}
+		});
+
+		if (workingDataset.length > 0) {
+			update_map();
+
+			if (typeof d.name === "undefined" || d.name === ""){
+	  			gen_sunburst(); //if center is on center, reset
+	  		}
+		}
 	}
 
 	function computeTextRotation(d) {

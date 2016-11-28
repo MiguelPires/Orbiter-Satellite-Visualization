@@ -4,9 +4,9 @@ body {
     width:100vw;  /* As above. */
 }
 
-h1 { 
+h1, h2 { 
    font-size: 18pt;
-   font-family: calibri, arial, sans serif;
+   font-family: Helvetica, calibri, arial, sans serif;
    margin: 5px;
 }
 
