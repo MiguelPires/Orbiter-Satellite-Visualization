@@ -17,7 +17,6 @@ eventDispatcherOut.on("launchVehicleExit", function(lauchVehicle){
 	}
 });
 
-
 d3.csv("data.csv", function (data) {
 	dataset = data;
 	workingDataset = dataset;
@@ -87,7 +86,7 @@ function gen_bars() {
 	.attr("class", "hoverinfo tooltip")              // apply the 'tooltip' class
 	.style("opacity", 0);                  // set the opacity to nil
 
-	svg.selectAll("rect")
+	svg.append("g").attr("id", "barContainer").selectAll("rect")
 	.data(sortedVehicleCount.slice(0, numberOfBars-1))
 	.enter().append("rect")
 	.attr("width", function (d) {
@@ -123,6 +122,27 @@ function gen_bars() {
 		.style("opacity", 0);
 		
 		eventDispatcherOut.launchVehicleExit(d, d);
+	}).select("#barContainer").append("text")
+		.attr("opacity", 1.0)
+		.attr("width", "50px")
+		.attr("height", "70px")
+		.attr("x", function(d, i) {
+			return xscale(i);
+		})
+		.attr("y", function(d) {
+			return hscale(i+1) + h-padding-hscale(i+1) + 30;
+		})
+		.text(function(d) {return i;})
+		.style("font-size","18px");
+
+	sortedVehicleCount.slice(0, numberOfBars-1).forEach( function(d, i) {
+
+		svg.select("#barContainer").append("text")
+		.attr("opacity", 1.0)
+		.attr("x", xscale(i))
+		.attr("y", hscale(i) + h-padding-hscale(i) + 30	)
+		.text(d[0])
+		.style("font-size","18px")
 	});
 }
 
@@ -171,15 +191,6 @@ function gen_map() {
 
 					return false;
 	  			});
-
-	            // this filter the collaborating countries so that only the 
-	            // clicked country appears selected in the map
-
-	           /* workingDataset.forEach(function(row) {
-	            	console.log(row["Country of Owner"]);
-	            	row["Country of Owner"] = countryNamePairs[geography.properties.name];
-	            	console.log(row["Country of Owner"]);
-	            });*/
 
 				if (workingDataset.length > 0) {
 					gen_sunburst();
@@ -255,7 +266,6 @@ function update_map(){
 		countryCount = countryOccurrence(countries);
 		sortedCountryCount = sortAssociativeArray(countryCount);
 
-
 		var paletteScale = d3.scale.linear()
 			.domain([0,sortedCountryCount[0][1]])
 			.range(["#95b7ed","#0642a3"]); // blue range
@@ -266,14 +276,12 @@ function update_map(){
 			countriesDataset[code] = { value : countryValue, fillColor: paletteScale(countryValue)};
 		});					
 	} 
-	
 	map.updateChoropleth(countriesDataset, {reset: true});
 	gen_bubbles();
 }
 
 function gen_bubbles () {
 	var launchSites = Array();
-	var mostOccurrences = 0;
 
 	// gather dataset for bubbles
 	workingDataset.forEach(function(item){
@@ -281,11 +289,6 @@ function gen_bubbles () {
 
 		if (launchSites.hasOwnProperty(launchSite)){
 			launchSites[launchSite].occurrences += 1;
-
-			// mostOccurrences for bubble normalization
-			if (launchSites[launchSite].occurrences > mostOccurrences) {
-				mostOccurrences = launchSites[launchSite].occurrences;
-			}
 		} else {
 			code = countryCodePairs[item["Country of Owner"]];
 			coordinates = item["Coordinates"].split(";");
@@ -295,7 +298,6 @@ function gen_bubbles () {
 
 	// normalize bubble size
 	Object.keys(launchSites).forEach(function(site) {
-		//var norm = launchSites[site].occurrences * 50 / mostOccurrences;
 		launchSites[site].radius = Math.round(Math.log(launchSites[site].occurrences))*5;
 	});
 
@@ -545,11 +547,11 @@ function gen_sunburst() {
 		}
 	});	
 
-	  d3.select(self.frameElement).style("height", height + "px");
+	d3.select(self.frameElement).style("height", height + "px");
 
-	  var text = g.append("text");
+	var text = g.append("text");
 
-	  function click(d) {
+	function click(d) {
 		// fade out all text elements
 		text.transition().attr("opacity", 0);
 
@@ -564,7 +566,7 @@ function gen_sunburst() {
 					// get a selection of the associated text element
 					var arcText = d3.select(this.parentNode).select("text");
 
-					arcText.text(function(d) { return d.name; })
+					arcText.text(function(d) { return d.name; });
 					// fade in the text element and recalculate positions
 					arcText.transition().duration(750)
 					.attr("opacity", 1)
