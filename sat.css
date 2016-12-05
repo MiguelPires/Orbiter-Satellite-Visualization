@@ -6,7 +6,7 @@ body {
 
 h1, h2 { 
    font-size: 18pt;
-   font-family: Helvetica, calibri, arial, sans serif;
+   font-family: Helvetica, calibri, arial, sans-serif;
    margin: 5px;
 }
 
@@ -23,7 +23,7 @@ h1, h2 {
 }
 
 .axis text {
-   font-family: calibri, sans serif;
+   font-family: Helvetica, calibri, arial, sans-serif;
    font-size: 10pt;
 }
 
@@ -44,13 +44,14 @@ path {
 }
 
 text {
-  font-family: Arial, sans-serif;
+  font-family: Helvetica, calibri, arial, sans-serif;
   font-size: 12px;
-    position:absolute;
+  position:absolute;
 
 }
 svg {
-  font: 10px sans-serif;
+  font-size: 10px;
+  font-family: Helvetica, calibri, arial, sans-serif;
 }
 
 .area {
@@ -67,7 +68,7 @@ svg {
 div.tooltip { 
   position: absolute;     
   pointer-events: none;     
-  font-family: Helvetica-Neue, Helvetica, Verdana;
+  font-family: Helvetica, calibri, arial, sans-serif;
 }
 
 a.boxclose{

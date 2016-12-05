@@ -2,9 +2,12 @@ var dataset;
 var workingDataset = new Array();
 var eventDispatcherIn = d3.dispatch("launchVehicleEnter");
 var eventDispatcherOut = d3.dispatch("launchVehicleExit");
-
 var selectedBar, selectedCircle;
+var clickedCountry = false;
 var map;
+var countrySelection, userSelection, 
+purposeSelection, vehicleSelection, 
+firstDateSelection, lastDateSelection;
 
 eventDispatcherIn.on("launchVehicleEnter", function(lauchVehicle){
 	selectedBar = d3.select("rect[title=\'"+lauchVehicle[0]+"\']");
@@ -25,13 +28,14 @@ d3.csv("data.csv", function (data) {
 	gen_map();
 	gen_timeline();
 	gen_sunburst();
+	gen_orbiter();
 });
 
 function gen_bars() {
 	var w = parseInt(d3.select("#bar_chart").style("width"));
 	var h = parseInt(d3.select("#bar_chart").style("height"));
 
-	var numberOfBars = 6;
+	var numberOfBars = 12;
 	var svg = d3.select("#bar_chart")
 	.append("svg");
 
@@ -76,14 +80,10 @@ function gen_bars() {
 	.attr("class","y axis")
 	.call(yaxis);
 
-	svg.append("g")
-	.attr("transform","translate(0," + (h-padding) + ")")
-	.call(xaxis);
-
 	// Define 'div' for tooltips
 	var div = d3.select("body")
 	.append("div")  // declare the tooltip div 
-	.attr("class", "hoverinfo tooltip")              // apply the 'tooltip' class
+	.attr("class", "hoverinfo tooltip")    // apply the 'tooltip' class
 	.style("opacity", 0);                  // set the opacity to nil
 
 	svg.append("g").attr("id", "barContainer").selectAll("rect")
@@ -137,12 +137,17 @@ function gen_bars() {
 
 	sortedVehicleCount.slice(0, numberOfBars-1).forEach( function(d, i) {
 
-		svg.select("#barContainer").append("text")
+		var svgText = svg.select("#barContainer").append("text")
 		.attr("opacity", 1.0)
-		.attr("x", xscale(i))
-		.attr("y", hscale(i) + h-padding-hscale(i) + 30	)
+		.attr("y", hscale(i) + h-padding-hscale(i) + 25)
 		.text(d[0])
-		.style("font-size","18px")
+		.style("font-size","18px");
+
+		var textWidth = parseInt(svgText.style("width"));
+		var barWidth = Math.floor((w-padding*3)/numberOfBars)-1;
+
+		var diff = (barWidth - textWidth)/2;
+		svgText.attr("x", xscale(i)+diff);
 	});
 }
 
@@ -176,17 +181,19 @@ function gen_map() {
 		width: null, //if not null, datamaps will grab the width of 'element'
 		responsive: false, //if true, call `resize()` on the map object when it should adjust it's size
 		done: function(geography) {
-            geography.svg.selectAll('.datamaps-subunit').on('click', function(geography) {
-	            workingDataset = dataset.filter( function(row) {
+			console.log(geography.svg);
 
-		  			console.log('country: ' + geography.properties.name + " -> " + countryNamePairs[geography.properties.name]);
-		  		//	console.log('row: ' + row["Country of Owner"]);
-		  			
+            geography.svg.selectAll('.datamaps-subunit').on('click',  function(geography) {
+	  			console.log('country: ' + geography.properties.name + " -> " + countryNamePairs[geography.properties.name]);
+	  			countrySelection =  countryNamePairs[geography.properties.name];
+	  			applySelection();
+	            /*workingDataset = dataset.filter( function(row) {	  			
 		  			countries = row["Country of Owner"].split(/[/]+/);
 
 					for (i = 0; i < countries.length; ++i) {
-						if (countries[i] === countryNamePairs[geography.properties.name])
+						if (countries[i] === countryNamePairs[geography.properties.name]) {
 							return true;
+						}
 					}
 
 					return false;
@@ -196,7 +203,24 @@ function gen_map() {
 					gen_sunburst();
 					update_map();
 				}
+*/
+				clickedCountry = true;
             });
+
+            d3.select("#map").select("svg").on('click', function () {
+            	if (clickedCountry) {
+            		clickedCountry = false;
+            	} else {
+            		countrySelection = undefined;
+            		applySelection();
+            		/*workingDataset = dataset;
+            		if (workingDataset.length > 0) {
+						gen_sunburst();
+						update_map();
+					}*/
+            	}
+            });
+
         }, //callback when the map is done drawing
 		fills: {
 		  defaultFill: 'gray' //the keys in this object map to the "fillKey" of [data] or [bubbles]
@@ -306,9 +330,9 @@ function gen_bubbles () {
 }
 
 function gen_timeline(){
-	var w = d3.select("#map").select("svg").attr("width"); 
-	var h = 200;
-
+	var w = parseInt(d3.select("#map").select("svg").attr("width")); 
+	var h = parseInt(d3.select("#timeline").style("height"));
+	
 	var dates = new Array();
 	workingDataset.forEach(function(d) {
 		dateText = d["Date of Launch"];
@@ -328,7 +352,7 @@ function gen_timeline(){
 	.attr("width",w)
 	.attr("height",h);
 
-	var margin = {top: 20, right: 20, bottom: 30, left: 50};
+	var margin = {top: 20, right: 20, bottom: 30, left: 60};
 	var width = +svg.attr("width") - margin.left - margin.right;
 	var height = +svg.attr("height") - margin.top - margin.bottom;
 	var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -341,10 +365,6 @@ function gen_timeline(){
 
 	var y = d3.scale.linear()
 	.rangeRound([height, 0]);
-
-/*	var line = d3.svg.line()
-		.x(function(d) { console.log("In: " + d +"; Out: " + x(d)); return x(d); })
-		.y(function(d, i) { console.log(y(i+1)); return y(i+1); });*/
 
 	var area = d3.svg.area()
 	.interpolate("monotone")
@@ -377,11 +397,6 @@ function gen_timeline(){
 	.attr("class", "area")
 	.attr("d", area);
 
-	/*g.append("path")
-	.datum(dates)
-	.attr("class", "line")
-	.attr("d", line);*/
-
 	var context = svg.append("g")
 	.attr("class", "context")
 	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -403,43 +418,16 @@ function gen_timeline(){
 
     function brushed() {
 		if (!d3.event.sourceEvent) return; // Only transition after input.
-	  	if (!brush.extent()) return; // Ignore empty selections.
 
-	  	//FIX :  already changed the brush snapping settings and its not working
-	  	var d0 = brush.extent().map(x.invert),
-	  	d1 = d0.map(d3.time.year.round);
-
-	  	var startYear = brush.extent()[0].getFullYear();
-	  	var endYear = brush.extent()[1].getFullYear();
-
-	  	workingDataset = dataset.filter( function(row) {
-	  		dateText = row["Date of Launch"];
-	  		dateParts = dateText.split("-");
-
-	  		var year = dateParts[2] > 20 ? "19"+dateParts[2] : "20"+dateParts[2];
-
-	  		if(year >= startYear && year <= endYear){
-	  			return true;
-	  		}
-	  		else {
-	  			return false;
-	  		}
-	  	});
-
-		update_map();
-		gen_sunburst();
-
-	  	// If empty when rounded, use floor & ceil instead.
-	  	if (d1[0] >= d1[1]) {	
-	  		d1[0] = d3.time.day.floor(d0[0]);
-	  		d1[1] = d3.time.day.offset(d1[0]);
+	  	if (brush.extent()[0].getTime() === brush.extent()[1].getTime()){
+			firstDateSelection = undefined;
+			lastDateSelection = undefined;
+	  	} else {
+	  		firstDateSelection = brush.extent()[0].getFullYear();
+	  		lastDateSelection = brush.extent()[1].getFullYear();
 	  	}
-
-	  	context.selectAll("a")//append("div")
-	  		//.html("<a class=\"boxclose\">X</a>")//.attr("transform","translate("+context.select(".extent").attr("x")+","+context.select(".extent").attr("y")+")");
-	  		.attr("x", context.select(".extent").attr("x"))
-	  		.attr("y", context.select(".extent").attr("y"));
-  		//d3.select(this).transition().call(d3.event.target.move, d1.map(x));
+	  		  	
+	  	applySelection();
   	}
 }
 
@@ -584,57 +572,30 @@ function gen_sunburst() {
 			}  
 		});
 
+		userSelection = undefined;
+		purposeSelection = undefined;
 
-		var datasetInUse;
-		if (typeof d.name === "undefined" || d.name === ""){
-			datasetInUse = dataset;
-  		}else {
-  			datasetInUse = workingDataset;
-  		}
-		
-		workingDataset = datasetInUse.filter( function(row) {
-	  		if (typeof d.name === "undefined" || d.name === ""){
-	  			return true; //if center is on center, reset
-	  		}
-
+		// TODO: alterar para ele ter em conta a hierarquia da selecao corrente
+		// para so sair de uma hierarquia
+		if (typeof d.name != "undefined" && d.name != "") {
 			if (typeof d.size === "undefined"){
-				var users = row["Users"].split("/");
-				for (i = 0; i < users.length; ++i) {
-					if (users[i] === d.name)
-						return true;
-				}
-
-				return false;
+				userSelection = d.name;
+				purposeSelection = undefined;
 			} else {
-				var foundIt = false;
-				var users = row["Users"].split("/");
-				for (i = 0; i < users.length; ++i) {
-					if (users[i] === d.parent.name) {
-						foundIt = true;
-						break;
-					}
-				}
-
-				if (!foundIt)
-					return false;
-
-				var purposes = row["Purpose"].split("/");
-				for (i = 0; i < purposes.length; ++i) {
-					if (purposes[i] === d.name)
-						return true;
-				}
-
-				return false;
+				userSelection = d.parent.name;
+				purposeSelection = d.name;
+			}		
+		} else {
+			// if only the user was selected, back out to no selection
+			if (purposeSelection === undefined && userSelection != undefined) {
+				userSelection = undefined;
+			// if both the user and the purpose were selected, back out to just user selection
+			} else if (purposeSelection != undefined && userSelection != undefined) {
+				purposeSelection = undefined;	
 			}
-		});
-
-		if (workingDataset.length > 0) {
-			update_map();
-
-			if (typeof d.name === "undefined" || d.name === ""){
-	  			gen_sunburst(); //if center is on center, reset
-	  		}
 		}
+
+		applySelection();
 	}
 
 	function computeTextRotation(d) {
@@ -682,6 +643,10 @@ function gen_sunburst() {
 			: function(t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); return arc(d); };
 		};
 	}
+}
+
+function updateSunburst() {
+
 }
 
 function createJsonDataset() {
@@ -735,6 +700,92 @@ function createJsonDataset() {
 	return usersJson;
 }
 
+function gen_orbiter() {
+	var width = parseInt(d3.select("#orbiter").style("width"));
+	var height = parseInt(d3.select("#orbiter").style("height"));
+
+	var svg = d3.select("#orbiter").append("svg")
+    .attr("width", width)
+    .attr("height", height); 
+
+	/*svg.selectAll("circle")
+    .data(dataset)
+    .enter().append("circle")*/
+    svg.append("circle")
+    .style("stroke", "steelblue")
+    .style("stroke-width", 6)
+    .style("fill", "none")
+    .attr("r", width/4)
+    .attr("cx", width/2)
+    .attr("cy", height/2);
+
+	svg.append("circle")
+    .style("stroke", "steelblue")
+    .style("stroke-width", 6)
+    .style("fill", "none")
+    .attr("r", width/5.5)
+    .attr("cx", width/2)
+    .attr("cy", height/2);
+
+    svg.append("circle")
+    .style("fill", "green")
+    .attr("r", width/8)
+    .attr("cx", width/2)
+    .attr("cy", height/2);
+
+}
+
+function applySelection() {
+	workingDataset = dataset.filter(function(row) {
+		if (filterGeneric(row, "Users", userSelection) &&
+			filterGeneric(row, "Purpose", purposeSelection) &&
+			filterGeneric(row, "Country of Owner", countrySelection) &&
+			filterDate(row)) {
+			return true;
+		} else {
+  			return false;
+  		}
+	});
+
+	console.log("Length: "+workingDataset.length);
+	//if (workingDataset.length > 0) {
+	
+	gen_sunburst();
+	update_map();
+		// TODO: update everything else
+	//}
+}
+
+// returns true if the row contains the selection; false otherwise
+function filterGeneric(row, column, selection) {
+	if (selection === undefined)
+		return true;
+
+	var parts = row[column].split("/");
+	for (i = 0; i < parts.length; ++i) {
+		if (parts[i] === selection)
+			return true;
+	}
+
+	return false;
+}
+
+function filterDate(row) {	
+	if (firstDateSelection === undefined || lastDateSelection === undefined)
+		return true;
+
+	dateText = row["Date of Launch"];
+	dateParts = dateText.split("-");
+
+	var year = dateParts[2] > 20 ? "19"+dateParts[2] : "20"+dateParts[2];
+
+	if (year >= firstDateSelection && year <= lastDateSelection){
+		return true;
+	}
+	else {
+		return false;
+	}
+}
 // sorts an associative array in decreasing order of value
 function sortAssociativeArray(assocArray) {
 	var sortedCount = [];
