@@ -90,3 +90,26 @@ a.boxclose{
 .boxclose:before {
   content: "×";
 }
+
+#viz, svg {
+  width: 1000px;
+  height: 1000px;
+}
+
+text {
+  pointer-events: none;
+}
+
+#buttons {
+  position: absolute;
+  top:0;
+  left:0;
+}
+
+circle.ring {
+  fill: none;
+  stroke: black;
+  stroke-width: 1px;
+  stroke-opacity: .15;
+
+}
