@@ -4,12 +4,18 @@ var eventDispatcherIn = d3.dispatch("launchVehicleEnter");
 var eventDispatcherOut = d3.dispatch("launchVehicleExit");
 var selectedBar, selectedCircle;
 var clickedCountry = false;
+var clickedBar = false;
+var clickedSunburst = false;
+var clickedOrbit = false;
 var map;
 var countrySelection, userSelection,
 	purposeSelection, vehicleSelection,
-	firstDateSelection, lastDateSelection;
-var sunburstClick;
-var updateSunburst3;
+	firstDateSelection, lastDateSelection,
+	orbitSelection;
+
+var updateSunburst;
+var brushSelection = false;
+var transitioning = false;
 
 eventDispatcherIn.on("launchVehicleEnter", function(lauchVehicle) {
 	selectedBar = d3.select("rect[title=\'" + lauchVehicle[0] + "\']");
@@ -24,7 +30,7 @@ eventDispatcherOut.on("launchVehicleExit", function(lauchVehicle) {
 
 d3.csv("data.csv", function(data) {
 
-	dataset = data.splice(0, 100);
+	dataset = data//.splice(0, 100);
 	workingDataset = dataset;
 
 	// Define 'div' for tooltips
@@ -33,148 +39,235 @@ d3.csv("data.csv", function(data) {
 		.attr("class", "hoverinfo tooltip") // apply the 'tooltip' class
 		.style("opacity", 0); // set the opacity to nil
 
-	//gen_bars();
-	gen_map();
-	gen_timeline();
-	genSunburst2();
-	gen_orbiter();
+	genBars();
+	genMap();
+	genTimeline();
+	genSunburst();
+	genOrbiter();
 
 	applySelection();
 });
 
-function gen_bars() {
-	var w = parseInt(d3.select("#bar_chart").style("width"));
-	var h = parseInt(d3.select("#bar_chart").style("height"));
+var updateBars;
+var insertingBars = false;
+function genBars() {
+	var margin = {top: 20, right: 20, bottom: 20, left: 60},
+	    width = parseInt(d3.select("#bar_chart").style("width")) - margin.left - margin.right,
+	    height = parseInt(d3.select("#bar_chart").style("height")) - margin.top - margin.bottom;
+	var pendingSelection = false;
 
-	// TODO: increment this
-	var numberOfBars = 3;
-	var svg = d3.select("#bar_chart")
-		.append("svg");
+	// D3 scales = just math
+	// x is a function that transforms from "domain" (data) into "range" (usual pixels)
+	// domain gets set after the data loads
+	var x = d3.scale.ordinal()
+	    .rangeRoundBands([0, width], .1);
 
-	svg.attr("width", w)
-		.attr("height", h);
+	var y = d3.scale.linear()
+	    .range([height, 0]);
 
-	var launchVehicles = new Array();
-	workingDataset.forEach(function(d) {
-		launchVehicles.push(d["Launch Vehicle"]);
-	});
+	// D3 Axis - renders a d3 scale in SVG
+	var xAxis = d3.svg.axis()
+	    .scale(x)
+	    .orient("bottom");
 
-	// generates a associative array with counts for each vehicle
-	vehicleCount = vehicleOccurrence(launchVehicles);
-	// sorts the array by decreasing order of value	
-	sortedVehicleCount = sortAssociativeArray(vehicleCount);
-	console.log(sortedVehicleCount);
+	var yAxis = d3.svg.axis()
+	    .scale(y)
+	    .orient("left")
+	    .ticks(5);
 
-	var padding = 35;
-	var bar_w = -10;
-
-	var hscale = d3.scale.linear()
-		//the maximum number is increased in 25 to allow some breathing room
-		.domain([sortedVehicleCount[0][1] + 25, 0])
-		.range([padding, h - padding]);
-
-	var xscale = d3.scale.linear()
-		.domain([0, numberOfBars - 1])
-		.range([padding, w - padding]);
-
-	var yaxis = d3.svg.axis().orient("left")
-		.scale(hscale).ticks(4);
-
-	var xaxis = d3.svg.axis().orient("bottom")
-		.scale(d3.scale.linear()
-			.domain([sortedVehicleCount[0][0], sortedVehicleCount[numberOfBars - 1][0]])
-			.range([padding + bar_w / 2, w - padding - bar_w / 2]))
-		.tickFormat(function(d) {
-			return d[0];
-		})
-		.ticks(numberOfBars - 1);
-	//.ticks(20);
+	// create an SVG element (appended to body)
+	// set size
+	// add a "g" element (think "group")
+	// annoying d3 gotcha - the 'svg' variable here is a 'g' element
+	// the final line sets the transform on <g>, not on <svg>
+	var svg = d3.select("#bar_chart").append("svg")
+	    .attr("width", width + margin.left + margin.right)
+	    .attr("height", height + margin.top + margin.bottom)
+	  .append("g")
+	    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 	svg.append("g")
-		.attr("transform", "translate(30,0)")
-		.attr("class", "y axis")
-		.call(yaxis);
+	    .attr("class", "x axis")
+	    .attr("transform", "translate(0," + height + ")")
 
-	var div = d3.select("body").select("div.tooltip");
+	svg.append("g")
+	    .attr("class", "y axis")
+	  	.append("text") // just for the title (ticks are automatic)
+	    .attr("dy", ".71em")
+	    .style("text-anchor", "end")
+	    .text("Launches")
+	    .attr("y", -20);
 
-	svg.append("g").attr("id", "barContainer").selectAll("rect")
-		.data(sortedVehicleCount.slice(0, numberOfBars - 1))
-		.enter().append("rect")
-		.attr("width", function(d) {
-			return Math.floor((w - padding * 3) / numberOfBars) - 1;
-		})
-		.attr("height", function(d) {
-			return h - padding - hscale(d[1]);
-		})
-		.attr("fill", "steelblue")
-		.attr("x", function(d, i) {
-			return xscale(i);
-		})
-		.attr("y", function(d) {
-			return hscale(d[1]);
-		})
-		.attr("title", function(d) {
-			return d[0];
-		})
-		.on("mouseover", function(d) {
-			div.transition()
-				.duration(500)
-				.style("opacity", 0);
+	function type(d) {
+		// + coerces to a Number from a String (or anything)
+		d.frequency = +d.frequency;
+		return d;
+	}
 
-			div.transition()
-				.duration(200)
-				.style("opacity", .9);
+	function replay() {
+		var launchVehicles = new Array();
+		workingDataset.forEach(function(d) {
+			launchVehicles.push(d["Launch Vehicle"]);
+		});
 
-			div.html('<b>Vehicle </b>' + d[0] + '<br><b>Launches </b> ' + d[1])
-				.style("left", (d3.event.pageX) + "px")
-				.style("top", (d3.event.pageY - 28) + "px");
+		// generates a associative array with counts for each vehicle
+		vehicleCount = vehicleOccurrence(launchVehicles);
+		// sorts the array by decreasing order of value	
+		data = sortAssociativeArray(vehicleCount).slice(0,12);
 
+		var slices = [];
+		for (var i = 0; i < data.length; i++) {
+			slices.push(data.slice(0, i+1));
+		}
+
+		var lastTimeout;
+		slices.forEach(function(slice, index){
+			insertingBars = true;
+			setTimeout(function(){
+			  	draw(slice);
+			}, index * 300);
+			lastTimeout = index * 300;
+		});
+
+		setTimeout(function (argument) {
+			insertingBars = false;
+			if (pendingSelection) {
+				updateBars();
+				pendingSelection = false;
+			}
+		}, lastTimeout);
+	}
+
+	function draw(data) {
+		// measure the domain (for x, unique letters) (for y [0,maxFrequency])
+		// now the scales are finished and usable
+		x.domain(data.map(function(d) { return d[0]; }));
+		y.domain([0, d3.max(data, function(d) { return d[1]; })]);
+
+		// another g element, this time to move the origin to the bottom of the svg element
+		// someSelection.call(thing) is roughly equivalent to thing(someSelection[i])
+		//   for everything in the selection\
+		// the end result is g populated with text and lines!
+		svg.select('.x.axis').transition().duration(300).call(xAxis);
+
+		// same for yAxis but with more transform and a title
+		svg.select(".y.axis").transition().duration(300).call(yAxis)
+
+		var tooltip = d3.select("body").select("div.tooltip");
+		
+		d3.select("#bar_chart").select("svg").on("click", function() {
+			console.log("Clicked bar chart"+clickedBar);
+
+			if (clickedBar) {
+				clickedBar = false;
+			} else if (vehicleSelection != undefined) {
+				vehicleSelection = undefined;
+				applySelection();
+			}
+		});
+
+		var bars = svg.selectAll(".bar")
+			.data(data, function(d) { return d[0]; }) // (data) is an array/iterable thing, second argument is an ID generator function
+			.on("mouseover", function(d) {
+				tooltip.transition()
+					.duration(500)
+					.style("opacity", 0);
+
+				tooltip.transition()
+					.duration(200)
+					.style("opacity", .9);
+
+				tooltip.html('<b>Vehicle </b>' + d[0] + '<br><b>Launches </b> ' + d[1])
+					.style("left", (d3.event.pageX) + "px")
+					.style("top", (d3.event.pageY - 28) + "px");
+
+			console.log(d[0]+"; "+d[1]);
 			eventDispatcherIn.launchVehicleEnter(d, d);
 		}).on("mouseout", function(d) {
-			div.transition()
+			tooltip.transition()
 				.duration(500)
 				.style("opacity", 0);
 
 			eventDispatcherOut.launchVehicleExit(d, d);
-		}).select("#barContainer").append("text")
-		.attr("opacity", 1.0)
-		.attr("width", "50px")
-		.attr("height", "70px")
-		.attr("x", function(d, i) {
-			return xscale(i);
-		})
-		.attr("y", function(d) {
-			return hscale(i + 1) + h - padding - hscale(i + 1) + 30;
-		})
-		.text(function(d) {
-			return i;
-		})
-		.style("font-size", "18px");
+		}).on("click", function(d){
+			clickedBar = true;
+			console.log(d[0]);
+			vehicleSelection = d[0];
+			applySelection();
+		});
 
-	sortedVehicleCount.slice(0, numberOfBars - 1).forEach(function(d, i) {
+		bars.exit()
+		.transition()
+		  .duration(300)
+		.attr("y", y(0))
+		.attr("height", height - y(0))
+		//.style('fill-opacity', 1e-6)
+		.remove();
 
-		var svgText = svg.select("#barContainer").append("text")
-			.attr("opacity", 1.0)
-			.attr("y", hscale(i) + h - padding - hscale(i) + 25)
-			.text(d[0])
-			.style("font-size", "18px");
+		// data that needs DOM = enter() (a set/selection, not an event!)
+		bars.enter().append("rect")
+		.attr("class", "bar")
+		.attr("y", y(0))
+		.attr("height", height - y(0));
 
-		var textWidth = parseInt(svgText.style("width"));
-		var barWidth = Math.floor((w - padding * 3) / numberOfBars) - 1;
+		// the "UPDATE" set:
+		bars.transition().duration(300).attr("x", function(d) { return x(d[0]); }) // (d) is one item from the data array, x is the scale object from above
+		.attr("width", x.rangeBand()) // constant, so no callback function(d) here
+		.attr("y", function(d) { return y(d[1]); })
+		.attr("height", function(d) { return height - y(d[1]); }); // flip the height, because y's domain is bottom up, but SVG renders top down
+	}
 
-		var diff = (barWidth - textWidth) / 2;
-		svgText.attr("x", xscale(i) + diff);
-	});
+	updateBars = function () {
+		if (!insertingBars)
+			replay(workingDataset);
+		else {
+			pendingSelection = true;
+		}
+	}
 }
 
-function gen_map() {
+function genMap() {
 	var countries = new Array();
 
 	workingDataset.forEach(function(d) {
 		countries.push(d["Country of Owner"]);
 	});
-	countryCount = countryOccurrence(countries);
+	var countryCount = countryOccurrence(countries);
 	sortedCountryCount = sortAssociativeArray(countryCount);
+
+	var input = document.getElementById("input");
+	var comboplete  = new Awesomplete('input.dropdown-input', {
+		minChars: 0,
+		sort : function(a, b){
+		    if(a < b) return -1;
+	    	if(a > b) return 1;
+	    	return 0;
+		}
+	});
+	Awesomplete.$('.dropdown-btn').addEventListener("click", function() {
+		if (comboplete.ul.childNodes.length === 0) {
+			comboplete.minChars = 0;
+			comboplete.evaluate();
+		} else if (comboplete.ul.hasAttribute('hidden')) {
+			comboplete.open();
+		} else {
+			comboplete.close();
+		}
+	});
+	comboplete.list = Object.keys(countryCount);
+
+	window.addEventListener("awesomplete-selectcomplete", function(e){
+		clickedCountry = true;
+		countrySelection = countryNamePairs[e.text.label];
+		applySelection();
+	}, false);
+
+	d3.select("input").on('search', function (e) {
+		if (input.value === "" && countrySelection != undefined) {
+			countrySelection = undefined;
+			applySelection();
+		}
+	});
 
 	var paletteScale = d3.scale.linear()
 		.domain([0, sortedCountryCount[0][1]])
@@ -199,30 +292,28 @@ function gen_map() {
 		height: null, //if not null, datamaps will grab the height of 'element'
 		width: null, //if not null, datamaps will grab the width of 'element'
 		responsive: false, //if true, call `resize()` on the map object when it should adjust it's size
+		fills: {
+            HIGH: '#0642a3',
+            LOW: '#95b7ed',
+            MEDIUM: '#698dc7',
+            UNKNOWN: 'rgb(0,0,0)',
+            defaultFill: 'green'
+        },
 		done: function(geography) {
 			geography.svg.selectAll('.datamaps-subunit').on('click', function(geography) {
-				/*console.log(geography);
-            	clickedCountry = true;
-            	var code = countryCodePairs[geography.properties.name];
-				if (countriesDataset[code].value <= 0) {
-					console.log("empty");
-					return;
-				} else {
-					console.log("non empty");
-				}*/
 				clickedCountry = true;
-
 				console.log('country: ' + geography.properties.name + " -> " + countryNamePairs[geography.properties.name]);
 				countrySelection = countryNamePairs[geography.properties.name];
+				input.value = countrySelection;
 				applySelection();
-
 			});
 
 			d3.select("#map").select("svg").on('click', function() {
 				if (clickedCountry) {
 					clickedCountry = false;
-				} else {
+				} else if (countrySelection != undefined) {
 					countrySelection = undefined;
+					input.value = "";
 					applySelection();
 				}
 			});
@@ -245,7 +336,7 @@ function gen_map() {
 			},
 			popupOnHover: true, //disable the popup while hovering
 			highlightOnHover: true,
-			highlightFillColor: '#FC8D59',
+			highlightFillColor: 'brown',
 			highlightBorderColor: 'rgba(250, 15, 160, 0.2)',
 			highlightBorderWidth: 2,
 			highlightBorderOpacity: 1
@@ -262,7 +353,7 @@ function gen_map() {
 			fillOpacity: 0.75,
 			animate: true,
 			highlightOnHover: true,
-			highlightFillColor: '#FC8D59',
+			highlightFillColor: 'brown',
 			highlightBorderColor: 'rgba(250, 15, 160, 0.2)',
 			highlightBorderWidth: 2,
 			highlightBorderOpacity: 1,
@@ -279,12 +370,9 @@ function gen_map() {
 	});
 
 	gen_bubbles();
-
-	// Draw a legend for this map
-	map.legend();
 }
 
-function update_map() {
+function updateMap() {
 	var countriesDataset = {};
 
 	if (workingDataset.length > 0) {
@@ -343,9 +431,14 @@ function gen_bubbles() {
 
 	// draw bubbles
 	map.bubbles(Object.values(launchSites));
+
+	// TODO - adds the arcs upon bubble selection
+	/*d3.select("#map").selectAll("circle.datamaps-bubble").on("click", function() {
+		
+	})*/
 }
 
-function gen_timeline() {
+function genTimeline() {
 	var w = parseInt(d3.select("#map").select("svg").attr("width"));
 	var h = parseInt(d3.select("#timeline").style("height"));
 
@@ -376,7 +469,7 @@ function gen_timeline() {
 	};
 	var width = +svg.attr("width") - margin.left - margin.right;
 	var height = +svg.attr("height") - margin.top - margin.bottom;
-	var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")").attr("id", "chartAxis");
 
 	var parseTime = d3.time.format("%d-%B-%y");
 
@@ -432,7 +525,7 @@ function gen_timeline() {
 
 	var brush = d3.svg.brush()
 		.x(x)
-		.on("brush", brushed);
+		.on("brushend", brushed);
 
 	context.append("g")
 		.attr("class", "x brush")
@@ -441,275 +534,21 @@ function gen_timeline() {
 		.attr("y", -6)
 		.attr("height", height + 7);
 
-	context.selectAll(".extent")
-		.append("a")
-		.attr("class", "boxclose");
-
 	function brushed() {
 		if (!d3.event.sourceEvent) return; // Only transition after input.
 
-		if (brush.extent()[0].getTime() === brush.extent()[1].getTime()) {
-			firstDateSelection = undefined;
-			lastDateSelection = undefined;
-		} else {
+		if (brush.extent()[0].getTime() != brush.extent()[1].getTime()) {
 			firstDateSelection = brush.extent()[0].getFullYear();
 			lastDateSelection = brush.extent()[1].getFullYear();
+			applySelection();
+		} else if (firstDateSelection != undefined && lastDateSelection != undefined) {
+			firstDateSelection = undefined;
+			lastDateSelection = undefined;
+			applySelection();
 		}
-
-		applySelection();
 	}
 }
-
-var svgSunburst;
-var pathSunburst;
-
-function gen_sunburst() {
-	var width = d3.select("#container_sunburst").style("width").split("px")[0],
-		height = d3.select("#container_sunburst").style("height").split("px")[0],
-		radius = Math.min(width, height) / 2;
-
-	var x = d3.scale.linear()
-		.range([0, 2 * Math.PI]);
-
-	var y = d3.scale.sqrt()
-		.range([0, radius]);
-
-	var color = d3.scale.category20c();
-
-	svgSunburst = d3.select("#sunburst")
-		.attr("id", "sunburst")
-		.attr("width", width)
-		.attr("height", height)
-		.select("g")
-		.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-
-	var partition = d3.layout.partition()
-		//.sort(null)   // sort(null) to ignore order
-		.value(function(d) {
-			return d.size;
-		});
-
-	var arc = d3.svg.arc()
-		.startAngle(function(d) {
-			return Math.max(0, Math.min(2 * Math.PI, x(d.x)));
-		})
-		.endAngle(function(d) {
-			return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx)));
-		})
-		.innerRadius(function(d) {
-			return Math.max(0, y(d.y));
-		})
-		.outerRadius(function(d) {
-			return Math.max(0, y(d.y + d.dy));
-		});
-
-	var node = createJsonDataset();
-
-	var g = svgSunburst.selectAll("g")
-		.data(partition.nodes(node));
-
-	g.exit().remove();
-	g.selectAll("path").remove();
-	//g.selectAll("text").remove();
-
-	g.enter().append("g");
-
-	pathSunburst = g
-		.append("path")
-		.attr("d", arc)
-		.style("fill", function(d) {
-			return color(d.name);
-		})
-		.on("click", click)
-		.each(stash);
-
-	d3.selectAll("#sunburst").on("change", function change() {
-		var value = this.value === "count" ? function() {
-			return 1;
-		} : function(d) {
-			return d.size;
-		};
-
-		pathSunburst
-			.data(partition.value(value).nodes)
-			.transition()
-			.duration(1000)
-			.attrTween("d", arcTweenData);
-	});
-
-	var div;
-	if (d3.select("#tooltip").empty()) {
-		// Define the div for the tooltip
-		div = d3.select("body").append("div")
-			.attr("id", "tooltip")
-			.attr("class", "hoverinfo tooltip")
-			.style("opacity", 0);
-	} else {
-		div = d3.select("#tooltip");
-	}
-
-	pathSunburst.on("mouseover", function(d) {
-			if (typeof d.name === "undefined" || d.name === "") return;
-
-			div.transition()
-				.duration(200)
-				.style("opacity", .9);
-		})
-		.on("mouseout", function(d) {
-			div.transition()
-				.duration(500)
-				.style("opacity", 0);
-		})
-		.on("mousemove", function(d) {
-
-			if (typeof d.name === "undefined" || d.name === "") return;
-
-			div.html("")
-				.style("left", (d3.event.pageX - 34) + "px")
-				.style("top", (d3.event.pageY - 12) + "px");
-
-			if (typeof d.size === "undefined") {
-				var sumSize = 0;
-				d.children.forEach(function(purpose) {
-					sumSize += purpose.size;
-				});
-
-				div.html("<b>Users</b> " + d.name + "<br><b>Launches</b> " + sumSize);
-			} else {
-				div.html("<b>Purpose</b> " + d.name + "<br><b>Launches</b> " + d.size);
-			}
-		});
-
-	d3.select(self.frameElement).style("height", height + "px");
-
-	var text = g.append("text");
-
-	function click(d) {
-		sunburstClick = true;
-		// fade out all text elements
-		text.transition().attr("opacity", 0);
-
-		pathSunburst.transition()
-			.duration(750)
-			.attrTween("d", arcTweenZoom(d))
-			.each("end", function(e, i) {
-				if (typeof d.children === "undefined" && e.parent === d.parent) {
-
-					// check if the animated element's data e lies within the visible angle span given in d
-					if (e.x >= d.x && e.x < (d.x + d.dx)) {
-						// get a selection of the associated text element
-						var arcText = d3.select(this.parentNode).select("text");
-
-						arcText.text(function(d) {
-							return d.name;
-						});
-						// fade in the text element and recalculate positions
-						arcText.transition().duration(750)
-							.attr("opacity", 1)
-							.attr("x", function(d) {
-								return y(d.y) + 10;
-							})
-							.attr("y", function(d) {
-								return (d.y) + 10;
-							})
-							.style("font-size", "18px");
-
-						arcText.append("tspan").transition().duration(750)
-							.attr("opacity", 1)
-							.attr("dy", "1.4em") // offest by 1.2 em
-							.attr("x", function(d) {
-								return y(d.y) + 12;
-							})
-							.text(function(d) {
-								return "Launches: " + d.size;
-							})
-							.style("font-size", "18px");
-					}
-				}
-			});
-
-		userSelection = undefined;
-		purposeSelection = undefined;
-
-		// TODO: alterar para ele ter em conta a hierarquia da selecao corrente
-		// para so sair de uma hierarquia
-		if (typeof d.name != "undefined" && d.name != "") {
-			if (typeof d.size === "undefined") {
-				userSelection = d.name;
-				purposeSelection = undefined;
-			} else {
-				userSelection = d.parent.name;
-				purposeSelection = d.name;
-			}
-		} else {
-			// if only the user was selected, back out to no selection
-			if (purposeSelection === undefined && userSelection != undefined) {
-				userSelection = undefined;
-				// if both the user and the purpose were selected, back out to just user selection
-			} else if (purposeSelection != undefined && userSelection != undefined) {
-				purposeSelection = undefined;
-			}
-		}
-
-		applySelection();
-	}
-
-	function computeTextRotation(d) {
-		return (x(d.x + d.dx / 2) - Math.PI / 2) / Math.PI * 180;
-	}
-
-	// Setup for switching data: stash the old values for transition.
-	function stash(d) {
-		d.x0 = d.x;
-		d.dx0 = d.dx;
-	}
-
-	// When switching data: interpolate the arcs in data space.
-	function arcTweenData(a, i) {
-		var oi = d3.interpolate({
-			x: a.x0,
-			dx: a.dx0
-		}, a);
-
-		function tween(t) {
-			var b = oi(t);
-			a.x0 = b.x;
-			a.dx0 = b.dx;
-			return arc(b);
-		}
-
-		if (i == 0) {
-			// If we are on the first arc, adjust the x domain to match the root node
-			// at the current zoom level. (We only need to do this once.)
-			var xd = d3.interpolate(x.domain(), [node.x, node.x + node.dx]);
-			return function(t) {
-
-				x.domain(xd(t));
-				return tween(t);
-			};
-		} else {
-			return tween;
-		}
-	}
-
-	// When zooming: interpolate the scales.
-	function arcTweenZoom(d) {
-		var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
-			yd = d3.interpolate(y.domain(), [d.y, 1]),
-			yr = d3.interpolate(y.range(), [d.y ? 20 : 0, radius]);
-		return function(d, i) {
-			return i ? function(t) {
-				return arc(d);
-			} : function(t) {
-				x.domain(xd(t));
-				y.domain(yd(t)).range(yr(t));
-				return arc(d);
-			};
-		};
-	}
-}
-
-function genSunburst2() {
+function genSunburst() {
 	var width = d3.select("#container_sunburst").style("width").split("px")[0],
 		height = d3.select("#container_sunburst").style("height").split("px")[0],
 		radius = Math.min(width, height) / 2;
@@ -784,9 +623,9 @@ function genSunburst2() {
 		};
 	}
 
-	updateSunburst3 = function() {
-		if (sunburstClick) {
-			sunburstClick = false;
+	updateSunburst = function() {
+		if (clickedSunburst) {
+			clickedSunburst = false;
 			return;
 		}
 
@@ -830,7 +669,7 @@ function genSunburst2() {
 
 
 		function click(d) {
-			sunburstClick = true;
+			clickedSunburst = true;
 			// fade out all text elements
 			/*if (d.size !== undefined) {
 			  d.size += 100;
@@ -956,21 +795,20 @@ function createJsonDataset() {
 	return usersJson;
 }
 
-function gen_orbiter() {
-	var orbitTypes = ["LEO", "MEO", "GEO"];
+function genOrbiter() {
+	var orbitTypes = ["LEO", "MEO", "GEO", "Elliptical"];
 	var jsonDataset = [];
 	var numSatsOrbits = [];
-	var minRand = -25;
-	var maxRand = 25;
+	var minRand = -12.5;
+	var maxRand = 12.5;
 
 	var iteration = 0;
-	while (iteration < 4) {
+	while (iteration < orbitTypes.length) {
 		var counter = 0;
 		workingDataset.forEach(function(d) {
 			var index = orbitTypes.indexOf(d["Class of Orbit"]);
 
-			if (index === iteration || (iteration === 3 && index === -1)) {
-
+			if (index === iteration) {
 				var countries = d["Country of Owner"].split(/[/]+/);
 				var country;
 				if (countries.length > 1) {
@@ -982,7 +820,7 @@ function gen_orbiter() {
 				jsonDataset.push({
 					key: d["Name of Satellite, Alternate Names"],
 					orbital_period: "0.9408467",
-					radius: "20439",
+					radius: "2439",
 					randX: Math.floor(Math.random() * (maxRand - minRand + 1)) + minRand,
 					randY: Math.floor(Math.random() * (maxRand - minRand + 1)) + minRand,
 					country: country,
@@ -1014,7 +852,8 @@ function drawOrbit(_data, numSatsOrbits) {
 
 	colors = d3.scale.category20b();
 
-	orbit = d3.layout.orbit().size([width, height])
+	//TODO - changed this from width, height to height, height
+	orbit = d3.layout.orbit().size([height, height])
 		.children(function(d) {
 			return d.values
 		})
@@ -1028,19 +867,21 @@ function drawOrbit(_data, numSatsOrbits) {
 		.mode(numSatsOrbits)
 		.nodes(_data);
 
+	svg.on("click", function() {
+		if (clickedOrbit) {
+			clickedOrbit = false;
+		} else if (orbitSelection != undefined) {
+			orbitSelection = undefined;
+			applySelection();
+		}
+	});
+
 	svg.append("g")
 		.attr("class", "viz")
-		.attr("transform", "translate(50,50)")
 		.selectAll("g.node").data(orbit.nodes())
 		.enter()
 		.append("g")
 		.attr("class", "node")
-		.attr("randX", function() {
-			return 100 * Math.random();
-		})
-		.attr("randY", function() {
-			return 100 * Math.random();
-		})
 		.attr("transform", function(d) {
 			var rX, rY;
 			if (d.randX === undefined || d.randY === undefined) {
@@ -1054,7 +895,10 @@ function drawOrbit(_data, numSatsOrbits) {
 			return "translate(" + (d.x + rX) + "," + (d.y + rY) + ")"
 		})
 		.on("mouseover", nodeOver)
-		.on("mouseout", nodeOut);
+		.on("mouseout", nodeOut)
+		.on("click", click);
+	
+	svg.select("g.viz").attr("transform", "translate(" + (width - height)/2 + "," + 0 + ")");
 
 	svg.selectAll("g.node")
 		.append("circle")
@@ -1065,11 +909,24 @@ function drawOrbit(_data, numSatsOrbits) {
 			if (d.key === "root") return "green";
 			else if (d.key === "dummy") return "none";
 			else if (d.orbit === "LEO") return "steelblue";
-			else if (d.orbit === "MEO") return "yellow";
-			else if (d.orbit === "GEO") return "red";
-			else return "purple";
-			//return d.key === "root" ? "green" : "steelblue"
+			else if (d.orbit === "MEO") return "#74c476";
+			else if (d.orbit === "GEO") return "#e6550d";
+			else return "#756bb1";
+		})
+		
+	svg.selectAll("g.node").attr("class", function (d) {
+
+			if (d.key == "root") return "node earth";
+			else return "node satellite";
 		});
+
+	svg.selectAll("g.earth").append("text")
+				.style("font-size", "24")
+				.style("fill", "white")
+				.style("font-weight", "bold")
+	    		.style("text-anchor", "middle")
+	    		.style("dominant-baseline", "central")
+	    		.text("+");
 
 	d3.select("g.viz")
 		.selectAll("circle.ring")
@@ -1114,7 +971,10 @@ function drawOrbit(_data, numSatsOrbits) {
 }
 
 function nodeOver(d) {
-	orbit.stop();
+	if (d.key != "root")
+		orbit.stop();
+
+	d3.select(this).select("circle").style("stroke", "brown").style("stroke-width", 3);
 
 	var div = d3.select("body")
 		.select("div.tooltip");
@@ -1128,21 +988,30 @@ function nodeOver(d) {
 		.style("opacity", .9);
 
 	if (d.key === "root") {
-		div.html('<b>Earth</b>')
-		.style("left", (d3.event.pageX) + "px")
-		.style("top", (d3.event.pageY - 28) + "px");		
+		if (aggregateSatellites) {
+			div.html('<b>Click to expand satellites</b>')
+				.style("left", (d3.event.pageX) + "px")
+				.style("top", (d3.event.pageY - 28) + "px");	
+		} else {
+			div.html('<b>Click to aggregate satellites</b>')
+				.style("left", (d3.event.pageX) + "px")
+				.style("top", (d3.event.pageY - 28) + "px");	
+		}		
 	} else {
-		div.html('<b>Satellite </b>' + d.key +
+		div.html('<b>Satellite </b>' + d.key +(d.frequency != 1 ? " ("+d.frequency+" satellites)" : "") +
 			'<br><b>User & Purpose </b> ' + d.user + ' - ' + d.purpose +
 			'<br><b>Country </b> ' + d.country +
 			'<br><b>Orbit Class </b> ' + d.orbit)
-		.style("left", (d3.event.pageX) + "px")
-		.style("top", (d3.event.pageY - 28) + "px");		
+		.style("left", (d3.event.pageX + 15) + "px")
+		.style("top", (d3.event.pageY + 15) + "px");		
 	}
 }
 
-function nodeOut() {
-	orbit.start();
+function nodeOut(d) {
+	if (d.key != "root")
+		orbit.start();
+
+	d3.select(this).select("circle").style("stroke-width", 0);
 
 	var div = d3.select("body")
 		.select("div.tooltip");
@@ -1152,6 +1021,27 @@ function nodeOut() {
 		.style("opacity", 0);
 }
 
+var aggregateSatellites = true;
+function click(d) {
+			clickedOrbit = true;
+
+	if (d.key === "root") {
+		aggregateSatellites = (aggregateSatellites ? false : true);
+
+		if (aggregateSatellites) {
+			d3.select(this).select("circle");
+			d3.select(this).select("text").text("+");
+		} else {
+			d3.select(this).select("circle");
+			d3.select(this).select("text").text("-");
+		}
+	
+		updateOrbiter();
+	} else {
+		orbitSelection = d.orbit;
+		applySelection();
+	}
+}
 function newMode(_mode, _data) {
 	orbit.mode(_mode)
 		.nodes(_data);
@@ -1189,10 +1079,11 @@ function updateOrbiter() {
 	var orbitTypes = ["LEO", "MEO", "GEO"];
 	var jsonDataset = [];
 	var numSatsOrbits = [];
-	var minRand = -25;
-	var maxRand = 25;
+	var minRand = -12.5;
+	var maxRand = 12.5;
 
 	var svg = d3.select("#orbiter").select("svg");
+	var countriesHash = {};
 
 	var iteration = 0;
 	while (iteration < 4) {
@@ -1209,18 +1100,49 @@ function updateOrbiter() {
 					country = countries[0];
 				}
 
-				jsonDataset.push({
-					key: d["Name of Satellite, Alternate Names"],
-					orbital_period: "0.9408467",
-					radius: "20439",
-					randX: Math.floor(Math.random() * (maxRand - minRand + 1)) + minRand,
-					randY: Math.floor(Math.random() * (maxRand - minRand + 1)) + minRand,
-					country: country,
-					user: d["Users"],
-					purpose: d["Purpose"],
-					orbit: d["Class of Orbit"]
-				});
-				counter++;
+				if (aggregateSatellites) {
+					var nameParts = d["Name of Satellite, Alternate Names"].split(/[\s-]+/);
+					if (countriesHash[nameParts[0]] === undefined) {
+						countriesHash[nameParts[0]] = true;
+						jsonDataset.push({
+							key: nameParts[0],
+							orbital_period: "0.9408467",
+							radius: "2039",
+							randX: Math.floor(Math.random() * (maxRand - minRand + 1)) + minRand,
+							randY: Math.floor(Math.random() * (maxRand - minRand + 1)) + minRand,
+							country: country,
+							user: d["Users"],
+							purpose: d["Purpose"],
+							orbit: d["Class of Orbit"],
+							frequency: 1
+						});
+						counter++;
+					} else {
+						for (var key in jsonDataset) {
+							var jsonValue = jsonDataset[key];
+							if (jsonValue.key === nameParts[0] && jsonDataset[key].radius < 40000) {
+								jsonDataset[key].frequency += 1;
+								jsonDataset[key].radius = parseInt(jsonDataset[key].radius) + 800;
+								break;
+							}
+						}
+					}
+				} else {
+					jsonDataset.push({
+						key: d["Name of Satellite, Alternate Names"],
+						orbital_period: "0.9408467",
+						radius: "2039",
+						randX: Math.floor(Math.random() * (maxRand - minRand + 1)) + minRand,
+						randY: Math.floor(Math.random() * (maxRand - minRand + 1)) + minRand,
+						country: country,
+						user: d["Users"],
+						purpose: d["Purpose"],
+						orbit: d["Class of Orbit"],
+						frequency: 1
+					});
+					counter++;
+				}
+
 			}
 		});
 
@@ -1242,15 +1164,14 @@ function updateOrbiter() {
 		numSatsOrbits[iteration] = counter;
 		++iteration;
 	}
-
-	console.log("L: "+jsonDataset.length);
+	
 	orbit.mode(numSatsOrbits).nodes(jsonDataset);
 
 	var gs = svg.select("g.viz")
 		.selectAll("g.node").filter(function(d) {return d.key != "root"})
 		.data(jsonDataset);
 
-	gs.enter().append("g")
+	gs.enter().append("g").attr('opacity', 0)
 		.attr("class", "node")
 		.attr("randX", function() {
 			return 100 * Math.random();
@@ -1271,9 +1192,14 @@ function updateOrbiter() {
 		})
 		.on("mouseover", nodeOver)
 		.on("mouseout", nodeOut)
+		.on("click", click)
 		.append('circle');
 
-	//TODO - appending circles is duplicating circles
+		svg.select("g.viz")
+		.selectAll("g.node").filter(function(d) {return d.key != "root"})
+		.transition().duration(200).style('opacity', 0)
+		.transition().duration(700).style('opacity', 1);
+
 	gs.select("circle")
 		.attr("r", function(d) {
 			return d.radius ? radiusScale(d.radius) : 20
@@ -1282,12 +1208,12 @@ function updateOrbiter() {
 			if (d.key === "root") return "green";
 			else if (d.key === "dummy") return "none";
 			else if (d.orbit === "LEO") return "steelblue";
-			else if (d.orbit === "MEO") return "yellow";
-			else if (d.orbit === "GEO") return "red";
-			else return "purple";
+			else if (d.orbit === "MEO") return "#74c476";
+			else if (d.orbit === "GEO") return "#e6550d";
+			else return "#756bb1";
 		});
 
-	gs.exit().remove();
+	gs.exit().transition().duration(500).style('opacity', 0).remove()//.opacity(0);
 }
 
 function applySelection() {
@@ -1297,6 +1223,8 @@ function applySelection() {
 		if (filterGeneric(row, "Users", userSelection) &&
 			filterGeneric(row, "Purpose", purposeSelection) &&
 			filterGeneric(row, "Country of Owner", countrySelection) &&
+			filterGeneric(row, "Class of Orbit", orbitSelection) &&
+			filterVehicle(row) &&
 			filterDate(row)) {
 			return true;
 		} else {
@@ -1309,10 +1237,13 @@ function applySelection() {
 		return;
 	}
 
-	updateSunburst3();
-	update_map();
+	updateSunburst();
+	updateMap();
 	updateOrbiter();
-	// TODO: update everything else
+	updateBars();
+
+	//TODO - if this is useless remove the code for timeline update
+	//updateTimeline();
 }
 
 // returns true if the row contains the selection; false otherwise
@@ -1343,6 +1274,23 @@ function filterDate(row) {
 	} else {
 		return false;
 	}
+}
+
+function filterVehicle(row) {
+	if (vehicleSelection === undefined)
+		return true;
+
+	var vehicle = row["Launch Vehicle"];
+	var vehicleParts = vehicle.split(/[\s\.\-/]+/);
+	var	vehicleName = vehicleParts[0];
+
+	if (vehicleName === "Long")
+		vehicleName = "Long March";
+
+	if (vehicleName === vehicleSelection)
+		return true;
+	else 
+		return false;
 }
 // sorts an associative array in decreasing order of value
 function sortAssociativeArray(assocArray) {
