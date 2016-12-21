@@ -6,14 +6,18 @@ body {
 
 h1, h2 { 
    font-size: 18pt;
-   font-family: Helvetica, calibri, arial, sans-serif;
+   font-family: "Trebuchet MS", Helvetica, sans-serif;
+   font-style: normal;
+   color: #818181;
    margin: 5px;
    display: inline;
 }
 
 #input, .awesomplete > ul  {
   font-size: 16pt;
-  font-family: Helvetica, calibri, arial, sans-serif;
+   font-family: "Trebuchet MS", Helvetica, sans-serif;
+   font-style: normal;
+   color: #818181;
 }
 
 .bar {
@@ -35,19 +39,17 @@ h1, h2 {
 }
 
 .axis path, .axis line {
-    fill: none;
-    stroke: black;
+    fill: transparent;
+    stroke: black !important;
     shape-rendering: crispEdges;
+    stroke-width: 1.5;
 }
 
 .axis text {
-   font-family: Helvetica, calibri, arial, sans-serif;
    font-size: 10pt;
-}
-
-
-.axis--x path {
-  display: black;
+   font-family: "Trebuchet MS", Helvetica, sans-serif;
+   font-style: normal;
+   color: #818181;
 }
 
 .line {
@@ -62,17 +64,22 @@ path {
 }
 
 text {
-  font-family: Helvetica, calibri, arial, sans-serif;
-  font-size: 12px;
+  font-size: 11pt;
+  font-family: "Trebuchet MS", Helvetica, sans-serif;
+  font-style: normal;
+  color: #818181;
   position:absolute;
 
 }
 svg {
-  font-size: 10px;
-  font-family: Helvetica, calibri, arial, sans-serif;
+  font-size: 11pt;
+   font-family: "Trebuchet MS", Helvetica, sans-serif;
+   font-style: normal;
+   color: #818181;
 }
 
 .area {
+  stroke: transparent;
   fill: steelblue;
   clip-path: url(#clip);
 }
@@ -86,7 +93,9 @@ svg {
 div.tooltip { 
   position: absolute;     
   pointer-events: none;     
-  font-family: Helvetica, calibri, arial, sans-serif;
+  font-size: 11pt;
+  font-family: "Trebuchet MS", Helvetica, sans-serif;
+  font-style: normal;
 }
 
 text {
@@ -110,4 +119,17 @@ circle.ring {
 ::-webkit-input-placeholder { /* WebKit browsers */
   color: black;
   opacity: 1 !important;
+}
+
+.datamaps-hoverover {
+  font-size: 11pt !important;
+  font-family: "Trebuchet MS", Helvetica, sans-serif !important;
+}
+
+.hoverinfo {
+  font-size: 11pt !important;
+}
+
+html {
+  overflow: hidden;
 }

@@ -217,7 +217,7 @@ var countryCodePairs = {
 'Syria': 'SYR',
 'Taiwan': 'TWN',
 'Tajikistan': 'TJK',
-'Tanzania *: United Republic of': 'TZA',
+'Tanzania': 'TZA',
 'Thailand': 'THA',
 'Timor-Leste': 'TLS',
 'Togo': 'TGO',

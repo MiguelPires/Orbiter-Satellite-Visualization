@@ -406,7 +406,8 @@ td {
 }
 #combobox .dropdown-btn {
 	vertical-align: top;
-	height: 83%;
+	height: 4vh;
+	margin-left: -0.25%;
 	border-top-left-radius: 0;
 	border-bottom-left-radius: 0;
 }

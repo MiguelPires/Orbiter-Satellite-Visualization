@@ -1,4 +1,5 @@
 d3.layout.orbit = function() {
+	var running = false;
 	var currentTickStep = 0;
 	var orbitNodes;
 	var orbitSize = [1, 1];
@@ -48,6 +49,11 @@ d3.layout.orbit = function() {
 	}
 
 	_orbitLayout.start = function() {
+		if (running)
+			return;
+		else
+			running = true;
+		
 		//activate animation here
 		tickInterval = setInterval(
 			function() {
@@ -68,6 +74,7 @@ d3.layout.orbit = function() {
 	}
 
 	_orbitLayout.stop = function() {
+		running = false;
 		//deactivate animation here
 		clearInterval(tickInterval);
 	}
