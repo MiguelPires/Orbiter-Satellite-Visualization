@@ -1,4 +1,4 @@
-# Sattelite Visualization
+# Orbiter - Satellite Visualization
 
 This interactive visualization displays information regarding every satellite that is currently orbiting the Earth.
 By interacting with the visualization the user can discover new information. For instance:
