@@ -1,6 +1,0 @@
-To run the project, start a simple HTTP python server by executing in this folder:
-
-$ python -m SimpleHTTPServer 8000
-
-You can see the visualization by visiting the URL "localhost:8000"
-
